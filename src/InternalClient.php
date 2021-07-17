@@ -10,15 +10,14 @@ namespace Abigail;
  */
 class InternalClient extends Client
 {
-    public function sendResponse($pHttpCode = '200', $pMessage)
+    public function sendResponse(string $pHttpCode, $pMessage)
     {
         $pMessage = array_reverse($pMessage, true);
-        $pMessage['status'] = $pHttpCode+0;
+        $pMessage['status'] = intval($pHttpCode);
         $pMessage = array_reverse($pMessage, true);
 
         $method = $this->getOutputFormatMethod($this->getOutputFormat());
 
         return $this->$method($pMessage);
     }
-
 }
