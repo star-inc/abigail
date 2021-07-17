@@ -12,7 +12,7 @@ use ReflectionMethod;
 use TypeError;
 
 /**
- * \RestService\Server - A REST server class for RESTful APIs.
+ * \Abigail\Server - A REST server class for RESTful APIs.
  */
 class Server
 {
@@ -717,7 +717,7 @@ class Server
                 } else {
                     $this->controller = new $pClassName($this);
                 }
-                if (get_parent_class($this->controller) == '\RestService\Server') {
+                if (get_parent_class($this->controller) == '\Abigail\Server') {
                     $this->controller->setClient($this->getClient());
                 }
             } catch (Exception $e) {

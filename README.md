@@ -92,7 +92,7 @@ Usage Demo
 
 ```php
 
-use RestService\Server;
+use Abigail\Server;
 
 Server::create('/')
     ->addGetRoute('test', function(){
@@ -115,7 +115,7 @@ Server::create('/')
 
 ```php
 
-use RestService\Server;
+use Abigail\Server;
 
 Server::create('/admin', 'myRestApi\Admin')
     ->collectRoutes()
@@ -178,7 +178,7 @@ Generates following entry points:
 
 ```php
 
-use RestService\Server;
+use Abigail\Server;
 
 Server::create('/admin', new MyRestApi\Admin) //base entry points `/admin`
     ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
