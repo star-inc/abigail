@@ -1,9 +1,7 @@
-php-rest-service
+Abigail
 ==============
 
-Php-Rest-Service is a simple and fast PHP class for RESTful JSON APIs.
-
-[![Build Status](https://travis-ci.org/marcj/php-rest-service.png)](https://travis-ci.org/marcj/php-rest-service)
+Abigail is the fork from marcj/php-rest-service, which is a simple and fast PHP class for server side RESTful APIs.
 
 Features
 --------

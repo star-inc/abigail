@@ -6,7 +6,7 @@
 
     <testsuites>
         <testsuite name="php-rest-service">
-            <directory>./Test/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>

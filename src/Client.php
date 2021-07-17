@@ -1,6 +1,6 @@
 <?php
 
-namespace RestService;
+namespace Abigail;
 
 class Client
 {
@@ -105,7 +105,7 @@ class Client
     }
 
     /**
-     * @param \RestService\Server $controller
+     * @param \Abigail\Server $controller
      */
     public function setController($controller)
     {
@@ -113,7 +113,7 @@ class Client
     }
 
     /**
-     * @return \RestService\Server
+     * @return \Abigail\Server
      */
     public function getController()
     {

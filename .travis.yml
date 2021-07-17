@@ -1,19 +1,19 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
+  - 8.0
+  - 7.4
 
 matrix:
   include:
-    - php: 5.3
+    - php: 7.4
       dist: precise
 
 before_script:
-  # Composer
+  - apt update
+  - apt install -y git wget unzip
   - wget http://getcomposer.org/composer.phar
   - php composer.phar install
 
 script:
-  - phpunit;
+  - php ./vendor/bin/phpunit

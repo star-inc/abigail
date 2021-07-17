@@ -1,6 +1,6 @@
 <?php
 
-namespace RestService;
+namespace Abigail;
 
 /**
  * This client does not send any HTTP data,

@@ -1,9 +1,9 @@
 <?php
 
-namespace RestService;
+namespace Abigail;
 
 /**
- * \RestService\Server - A REST server class for RESTful APIs.
+ * \Abigail\Server - A REST server class for RESTful APIs.
  */
 
 class Server
@@ -51,7 +51,7 @@ class Server
     /**
      * Parent controller.
      *
-     * @var \RestService\Server
+     * @var \Abigail\Server
      */
     protected $parentController;
 
@@ -134,7 +134,7 @@ class Server
      *
      * @param string              $pTriggerUrl
      * @param string|object       $pControllerClass
-     * @param \RestService\Server $pParentController
+     * @param \Abigail\Server $pParentController
      */
     public function __construct($pTriggerUrl, $pControllerClass = null, $pParentController = null)
     {
@@ -632,7 +632,7 @@ class Server
                 } else {
                     $this->controller = new $pClassName($this);
                 }
-                if (get_parent_class($this->controller) == '\RestService\Server') {
+                if (get_parent_class($this->controller) == '\Abigail\Server') {
                     $this->controller->setClient($this->getClient());
                 }
             } catch (\Exception $e) {
