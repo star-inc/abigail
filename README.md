@@ -21,7 +21,7 @@ Features
 Installation
 ------------
 
-- https://packagist.org/packages/marcj/php-rest-service.
+- https://packagist.org/packages/starinc/abigail.
 - More information available under https://packagist.org/.
 
 Create a `composer.json`:
@@ -29,7 +29,7 @@ Create a `composer.json`:
 ```json
 {
     "require": {
-        "marcj/php-rest-service": "*"
+        "starinc/abigail": "*"
     }
 }
 ```
@@ -37,7 +37,7 @@ Create a `composer.json`:
 and run
 
 ```bash
-$ wget http://getcomposer.org/composer.phar
+$ wget https://getcomposer.org/composer.phar
 $ php composer.phar install
 ```
 

@@ -11,18 +11,20 @@
   "authors": [
     {
       "name": "SuperSonic",
-      "email": "supersonic@livemail.tw"
+      "email": "supersonic@livemail.tw",
+      "homepage": "https://github.com/supersonictw"
     },
     {
       "name": "Marc J. Schmidt",
       "email": "marc@kryn.org",
-      "homepage": "http://marcjschmidt.de"
+      "homepage": "https://marcjschmidt.de"
     }
   ],
   "require": {
     "php": ">=7.4.0",
     "ext-json": "*",
-    "ext-ctype": "*"
+    "ext-ctype": "*",
+    "composer-runtime-api": "^2.0"
   },
   "autoload": {
     "psr-4": {
