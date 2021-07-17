@@ -23,8 +23,7 @@
   "require": {
     "php": ">=7.4.0",
     "ext-json": "*",
-    "ext-ctype": "*",
-    "composer-runtime-api": "^2.0"
+    "ext-ctype": "*"
   },
   "autoload": {
     "psr-4": {
