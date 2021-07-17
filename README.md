@@ -1,7 +1,8 @@
 Abigail
 ==============
+[![Integration](https://github.com/star-inc/Abigail/actions/workflows/integration.yml/badge.svg)](https://github.com/star-inc/Abigail/actions/workflows/integration.yml)
 
-Abigail is the fork from marcj/php-rest-service, which is a simple and fast PHP class for server side RESTful APIs.
+Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP class for server side RESTful APIs.
 
 Features
 --------
@@ -49,7 +50,7 @@ include 'vendor/autoload.php';
 Requirements
 ============
 
-- PHP 5.3 and above.
+- PHP 7.4 and above.
 - PHPUnit to execute the test suite.
 - Setup PATH_INFO in mod_rewrite (.htaccess) or other webserver configuration
 
@@ -305,5 +306,3 @@ License
 Licensed under the MIT License. See the LICENSE file for more details.
 
 Take a look into the code, to get more information about the possibilities. It's well documented.
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/marcj/php-rest-service/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
