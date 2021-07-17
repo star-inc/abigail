@@ -2,6 +2,15 @@
 
 namespace Abigail;
 
+use Exception;
+use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
+use TypeError;
+
 /**
  * \RestService\Server - A REST server class for RESTful APIs.
  */
@@ -59,7 +68,7 @@ class Server
      *
      * @var Server|null
      */
-    protected Server|null $parentController = null;
+    protected ?Server $parentController = null;
 
     /**
      * The client
@@ -73,7 +82,7 @@ class Server
      *
      * @var array|string array('methodOne', 'methodTwo') or * for all methods
      */
-    protected array|string $collectRoutesExclude = array('__construct');
+    protected $collectRoutesExclude = array('__construct');
 
     /**
      * List of possible methods.
@@ -189,7 +198,7 @@ class Server
      * Factory.
      *
      * @param string $pTriggerUrl
-     * @param string $pControllerClass
+     * @param mixed $pControllerClass
      *
      * @return Server $this
      */
@@ -215,7 +224,7 @@ class Server
     /**
      * @return callable|null
      */
-    public function getControllerFactory(): callable|null
+    public function getControllerFactory(): ?callable
     {
         return $this->controllerFactory;
     }
@@ -261,7 +270,7 @@ class Server
      * Getter for checkAccess
      * @return callable|null
      */
-    public function getCheckAccess(): callable|null
+    public function getCheckAccess(): ?callable
     {
         return $this->checkAccessFn;
     }
@@ -284,7 +293,7 @@ class Server
      * Getter for successResponseWrapper
      * @return callable|null
      */
-    public function getSuccessResponseWrapper(): callable|null
+    public function getSuccessResponseWrapper(): ?callable
     {
         return $this->successResponseWrapper;
     }
@@ -355,7 +364,7 @@ class Server
      * Getter for checkAccess
      * @return callable|null
      */
-    public function getExceptionHandler(): callable|null
+    public function getExceptionHandler(): ?callable
     {
         return $this->sendExceptionFn;
     }
@@ -397,7 +406,7 @@ class Server
      *
      * @return Server|null $this
      */
-    public function getParentController(): Server|null
+    public function getParentController(): ?Server
     {
         return $this->parentController;
     }
@@ -436,11 +445,16 @@ class Server
         $raw_content_type_array = explode(";", $raw_content_type);
         if (isset($raw_content_type_array[0])) {
             $raw_content = file_get_contents("php://input");
-            $this->body_data = match ($raw_content_type_array[0]) {
-                "application/json" => json_decode($raw_content, true) ?? [],
-                "application/x-www-form-urlencoded" => self::form_decode($raw_content) ?? [],
-                default => []
-            };
+            switch ($raw_content_type_array[0]) {
+                case "application/json" :
+                    $this->body_data = json_decode($raw_content, true) ?? [];
+                    break;
+                case "application/x-www-form-urlencoded" :
+                    $this->body_data = self::form_decode($raw_content) ?? [];
+                    break;
+                default:
+                    $this->body_data = [];
+            }
         } else {
             throw new Exception("No the header content-type configured.");
         }
@@ -462,7 +476,7 @@ class Server
      * @param Client|string $pClient
      * @return Server        $this
      */
-    public function setClient(string|Client $pClient): Server
+    public function setClient($pClient): Server
     {
         if (is_string($pClient)) {
             $pClient = new $pClient($this);
@@ -550,7 +564,7 @@ class Server
      * @param string $pHttpMethod If you want to limit to a HTTP method.
      * @return Server
      */
-    public function addRoute(string $pUri, callable|string $pCb, $pHttpMethod = '_all_'): Server
+    public function addRoute(string $pUri, $pCb, string $pHttpMethod = '_all_'): Server
     {
         $this->routes[$pUri][$pHttpMethod] = $pCb;
 
@@ -564,7 +578,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addGetRoute(string $pUri, callable|string $pCb): Server
+    public function addGetRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'get');
 
@@ -578,7 +592,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addPostRoute(string $pUri, callable|string $pCb): Server
+    public function addPostRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'post');
 
@@ -592,7 +606,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addPutRoute(string $pUri, callable|string $pCb): Server
+    public function addPutRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'put');
 
@@ -606,7 +620,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addPatchRoute(string $pUri, callable|string $pCb): Server
+    public function addPatchRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'patch');
 
@@ -620,7 +634,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addHeadRoute(string $pUri, callable|string $pCb): Server
+    public function addHeadRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'head');
 
@@ -634,7 +648,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addOptionsRoute(string $pUri, callable|string $pCb): Server
+    public function addOptionsRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'options');
 
@@ -648,7 +662,7 @@ class Server
      * @param callable|string $pCb The method name of the passed controller or a php callable.
      * @return Server
      */
-    public function addDeleteRoute(string $pUri, callable|string $pCb): Server
+    public function addDeleteRoute(string $pUri, $pCb): Server
     {
         $this->addRoute($pUri, $pCb, 'delete');
 
@@ -674,7 +688,7 @@ class Server
      * @param string|object $pClass
      * @throws Exception
      */
-    public function setClass(object|string $pClass)
+    public function setClass($pClass)
     {
         if (is_string($pClass)) {
             $this->createControllerClass($pClass);
@@ -824,7 +838,7 @@ class Server
      * @return bool|string
      * @throws ReflectionException
      */
-    public function simulateCall(string $pUri, $pMethod = 'get'): bool|string
+    public function simulateCall(string $pUri, string $pMethod = 'get')
     {
         if (($idx = strpos($pUri, '?')) !== false) {
             parse_str(substr($pUri, $idx + 1), $_GET);
@@ -845,7 +859,7 @@ class Server
      * @throws ReflectionException
      * @throws Exception
      */
-    public function run(): bool|string
+    public function run()
     {
         //check sub controller
         foreach ($this->controllers as $controller) {
@@ -1059,7 +1073,7 @@ class Server
      * @return bool|array
      * @throws ReflectionException
      */
-    public function getMethodMetaData(ReflectionFunctionAbstract $pMethod, $pRegMatches = null): bool|array
+    public function getMethodMetaData(ReflectionFunctionAbstract $pMethod, $pRegMatches = null)
     {
         $file = $pMethod->getFileName();
         $startLine = $pMethod->getStartLine();
@@ -1267,7 +1281,7 @@ class Server
      * @param string $pMethod limit to method.
      * @return array|boolean
      */
-    public function findRoute(string $pUri, $pMethod = '_all_'): bool|array
+    public function findRoute(string $pUri, string $pMethod = '_all_')
     {
         if (isset($this->routes[$pUri][$pMethod]) && $method = $this->routes[$pUri][$pMethod]) {
             return array($method, array(), $pMethod, $pUri);

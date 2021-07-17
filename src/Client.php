@@ -331,7 +331,7 @@ class Client
      * @param int $pDepth
      * @return string XML
      */
-    public function toXml(mixed $pData, $pParentTagName = '', $pDepth = 1): string
+    public function toXml($pData, string $pParentTagName = '', int $pDepth = 1): string
     {
         if (is_array($pData)) {
             $content = '';
@@ -409,9 +409,9 @@ class Client
     public function setupFormats(): Client
     {
         // through HTTP_ACCEPT
-        if (isset($_SERVER['HTTP_ACCEPT']) && !str_contains($_SERVER['HTTP_ACCEPT'], '*/*')) {
+        if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], '*/*') === false) {
             foreach ($this->outputFormats as $formatCode => $formatMethod) {
-                if (str_contains($_SERVER['HTTP_ACCEPT'], $formatCode)) {
+                if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false) {
                     $this->outputFormat = $formatCode;
                     break;
                 }

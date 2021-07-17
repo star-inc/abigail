@@ -1,4 +1,4 @@
 <?php
-
+// PHPUnit bootstrap for Abigail
 $loader = include __DIR__ . '/../vendor/autoload.php';
-$loader->add('Test\\', __DIR__.'/../');
+$loader->setPsr4('Test\\', __DIR__ . '/Test');

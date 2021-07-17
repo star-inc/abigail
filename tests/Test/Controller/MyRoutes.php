@@ -7,7 +7,7 @@ class MyRoutes
     /**
      * @return string
      */
-    public function get()
+    public function get(): string
     {
         return "root GET";
     }
@@ -15,17 +15,17 @@ class MyRoutes
     /**
      * @return string
      */
-    public function post()
+    public function post(): string
     {
         return "root POST";
     }
 
     /**
-     * @param  string $username
-     * @param  string $password
+     * @param string $username
+     * @param string $password
      * @return bool
      */
-    public function postLogin($username, $password)
+    public function postLogin(string $username, string $password): bool
     {
         return $username == 'peter' && $password == 'pwd';
     }
@@ -36,13 +36,13 @@ class MyRoutes
      * @url stats
      * @return string
      */
-    public function getStats($server = '1')
+    public function getStats($server = '1'): string
     {
         return sprintf('Stats for %s', $server);
     }
 
 
-    public function getMethodWithoutPhpDoc()
+    public function getMethodWithoutPhpDoc(): string
     {
         return 'hi';
     }
@@ -52,9 +52,8 @@ class MyRoutes
      *
      * @return string
      */
-    public function getTest()
+    public function getTest(): string
     {
         return 'test';
     }
-
 }
