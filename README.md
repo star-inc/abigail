@@ -1,9 +1,8 @@
-php-rest-service
+Abigail
 ==============
+[![Integration](https://github.com/star-inc/Abigail/actions/workflows/integration.yml/badge.svg)](https://github.com/star-inc/Abigail/actions/workflows/integration.yml)
 
-Php-Rest-Service is a simple and fast PHP class for RESTful JSON APIs.
-
-[![Build Status](https://travis-ci.org/marcj/php-rest-service.png)](https://travis-ci.org/marcj/php-rest-service)
+Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP class for server side RESTful APIs.
 
 Features
 --------
@@ -12,7 +11,8 @@ Features
 + Regular Expression support
 + Error handling through PHP Exceptions
 + Parameter validation through PHP function signature
-+ Can return a summary of all routes or one route through `OPTIONS` method based on PHPDoc (if `OPTIONS` is not overridden)
++ Can return a summary of all routes or one route through `OPTIONS` method based on PHPDoc (if `OPTIONS` is not
+  overridden)
 + Support of `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD` and `OPTIONS`
 + Suppress the HTTP status code with ?_suppress_status_code=1 (for clients that have troubles with that)
 + Supports ?_method=`httpMethod` as addition to the actual HTTP method.
@@ -21,8 +21,8 @@ Features
 Installation
 ------------
 
- - https://packagist.org/packages/marcj/php-rest-service.
- - More information available under https://packagist.org/.
+- https://packagist.org/packages/marcj/php-rest-service.
+- More information available under https://packagist.org/.
 
 Create a `composer.json`:
 
@@ -42,6 +42,7 @@ $ php composer.phar install
 ```
 
 After the installation, you need to include the `vendor/autoload.php` to make the class in your script available.
+
 ```php
 include 'vendor/autoload.php';
 ```
@@ -49,13 +50,14 @@ include 'vendor/autoload.php';
 Requirements
 ============
 
- - PHP 5.3 and above.
- - PHPUnit to execute the test suite.
- - Setup PATH_INFO in mod_rewrite (.htaccess) or other webserver configuration
-   
+- PHP 7.4 and above.
+- PHPUnit to execute the test suite.
+- Setup PATH_INFO in mod_rewrite (.htaccess) or other webserver configuration
+
 Example config:
 apache webserver
 ----------------
+
 ```
 #.htaccess
 RewriteEngine On
@@ -63,8 +65,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule (.+) index.php/$1 [L,QSA]
 ```
+
 nginx webserver
 ---------------
+
 ```
 // edit virtualhost /etc/nginx/conf.d/name_virtualhost_file
 server {
@@ -85,7 +89,6 @@ Usage Demo
 ----------
 
 ### Way 1. The dirty & fast
-
 
 ```php
 
@@ -161,13 +164,13 @@ class Admin {
 ```
 
 Generates following entry points:
+
 ```
     + GET  /admin/logged-in
     + POST /admin/login?username=&password=
     + GET  /admin/stats/([0-9]+)
     + GET  /admin/stats
 ```
-
 
 ### Way 3. Custom rules with controller
 
@@ -246,11 +249,10 @@ class Tools {
 }
 ```
 
-
 ## Responses
 
-The response body is always a array (JSON per default) containing a status code and the actual data.
-If a exception has been thrown, it contains the status 500, the exception class name as error and the message as message.
+The response body is always a array (JSON per default) containing a status code and the actual data. If a exception has
+been thrown, it contains the status 500, the exception class name as error and the message as message.
 
 Some examples:
 
@@ -304,6 +306,3 @@ License
 Licensed under the MIT License. See the LICENSE file for more details.
 
 Take a look into the code, to get more information about the possibilities. It's well documented.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/marcj/php-rest-service/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

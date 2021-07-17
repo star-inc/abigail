@@ -1,6 +1,6 @@
 <?php
 
-namespace RestService;
+namespace Abigail;
 
 class Client
 {
@@ -9,14 +9,14 @@ class Client
      *
      * @var string
      */
-    private $outputFormat = 'json';
+    private string $outputFormat = 'json';
 
     /**
      * List of possible output formats.
      *
      * @var array
      */
-    private $outputFormats = array(
+    private array $outputFormats = array(
         'json' => 'asJSON',
         'xml' => 'asXML'
     );
@@ -25,30 +25,30 @@ class Client
      * List of possible methods.
      * @var array
      */
-    public $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
+    public array $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
 
     /**
      * Current URL.
      *
      * @var string
      */
-    private $url;
+    private string $url = "";
 
     /**
      * @var Server
      *
      */
-    private $controller;
+    private Server $controller;
 
     /**
      * Custom set http method.
      *
      * @var string
      */
-    private $method;
+    private string $method = "";
 
 
-    private static $statusCodes = array(
+    private static array $statusCodes = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -95,7 +95,7 @@ class Client
     /**
      * @param Server $pServerController
      */
-    public function __construct($pServerController)
+    public function __construct(Server $pServerController)
     {
         $this->controller = $pServerController;
         if (isset($_SERVER['PATH_INFO']))
@@ -105,17 +105,17 @@ class Client
     }
 
     /**
-     * @param \RestService\Server $controller
+     * @param Server $controller
      */
-    public function setController($controller)
+    public function setController(Server $controller)
     {
         $this->controller = $controller;
     }
 
     /**
-     * @return \RestService\Server
+     * @return Server
      */
-    public function getController()
+    public function getController(): Server
     {
         return $this->controller;
     }
@@ -125,15 +125,15 @@ class Client
      *
      * @param string $pHttpCode
      * @param        $pMessage
+     * @return mixed
      */
-    public function sendResponse($pHttpCode = '200', $pMessage)
+    public function sendResponse(string $pHttpCode, $pMessage)
     {
-        $suppressStatusCode = isset($_GET['_suppress_status_code']) ? $_GET['_suppress_status_code'] : false;
+        $suppressStatusCode = $_GET['_suppress_status_code'] ?? false;
         if ($this->controller->getHttpStatusCodes() &&
             !$suppressStatusCode &&
             php_sapi_name() !== 'cli'
         ) {
-
             $status = self::$statusCodes[intval($pHttpCode)];
             header('HTTP/1.0 ' . ($status ? $pHttpCode . ' ' . $status : $pHttpCode), true, $pHttpCode);
         } elseif (php_sapi_name() !== 'cli') {
@@ -145,15 +145,20 @@ class Client
         $pMessage = array_reverse($pMessage, true);
 
         $method = $this->getOutputFormatMethod($this->getOutputFormat());
-        echo $this->$method($pMessage);
-        exit;
+
+        if (php_sapi_name() !== 'cli') {
+            echo $this->$method($pMessage);
+            exit;
+        } else {
+            return $this->$method($pMessage);
+        }
     }
 
     /**
-     * @param  string $pFormat
+     * @param string $pFormat
      * @return string
      */
-    public function getOutputFormatMethod($pFormat)
+    public function getOutputFormatMethod(string $pFormat): string
     {
         return $this->outputFormats[$pFormat];
     }
@@ -161,7 +166,7 @@ class Client
     /**
      * @return string
      */
-    public function getOutputFormat()
+    public function getOutputFormat(): string
     {
         return $this->outputFormat;
     }
@@ -171,7 +176,7 @@ class Client
      *
      * @return string
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         if ($this->method) {
             return $this->method;
@@ -199,10 +204,10 @@ class Client
      * Sets a custom http method. It does then not check against
      * SERVER['REQUEST_METHOD'], $_GET['_method'] etc anymore.
      *
-     * @param  string $pMethod
+     * @param string $pMethod
      * @return Client
      */
-    public function setMethod($pMethod)
+    public function setMethod(string $pMethod): Client
     {
         $this->method = $pMethod;
 
@@ -226,7 +231,7 @@ class Client
      * @param $pMessage
      * @return string
      */
-    public function asJSON($pMessage)
+    public function asJSON($pMessage): string
     {
         if (php_sapi_name() !== 'cli')
             header('Content-Type: application/json; charset=utf-8');
@@ -242,11 +247,11 @@ class Client
      *
      * Original at http://recursive-design.com/blog/2008/03/11/format-json-with-php/
      *
-     * @param string $json The original JSON string to process.
+     * @param array $json The original JSON string to process.
      *
      * @return string Indented version of the original JSON string.
      */
-    public function jsonFormat($json)
+    public function jsonFormat(array $json): string
     {
         if (!is_string($json)) $json = json_encode($json);
 
@@ -260,15 +265,15 @@ class Client
 
         for ($i = 0; $i <= $strLen; $i++) {
 
-// Grab the next character in the string.
+            // Grab the next character in the string.
             $char = substr($json, $i, 1);
 
-// Are we inside a quoted string?
+            // Are we inside a quoted string?
             if ($char == '"' && !$inEscapeMode) {
                 $outOfQuotes = !$outOfQuotes;
 
-// If this character is the end of an element,
-// output a new line and indent the next line.
+                // If this character is the end of an element,
+                // output a new line and indent the next line.
             } elseif (($char == '}' || $char == ']') && $outOfQuotes) {
                 $result .= $newLine;
                 $pos--;
@@ -279,11 +284,11 @@ class Client
                 $char .= ' ';
             }
 
-// Add the character to the result string.
+            // Add the character to the result string.
             $result .= $char;
 
-// If the last character was the beginning of an element,
-// output a new line and indent the next line.
+            // If the last character was the beginning of an element,
+            // output a new line and indent the next line.
             if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
                 $result .= $newLine;
                 if ($char == '{' || $char == '[') {
@@ -310,7 +315,7 @@ class Client
      * @param $pMessage
      * @return string
      */
-    public function asXML($pMessage)
+    public function asXML($pMessage): string
     {
         $xml = $this->toXml($pMessage);
         $xml = "<?xml version=\"1.0\"?>\n<response>\n$xml</response>\n";
@@ -321,12 +326,12 @@ class Client
     }
 
     /**
-     * @param  mixed  $pData
-     * @param  string $pParentTagName
-     * @param  int    $pDepth
+     * @param mixed $pData
+     * @param string $pParentTagName
+     * @param int $pDepth
      * @return string XML
      */
-    public function toXml($pData, $pParentTagName = '', $pDepth = 1)
+    public function toXml($pData, string $pParentTagName = '', int $pDepth = 1): string
     {
         if (is_array($pData)) {
             $content = '';
@@ -349,11 +354,11 @@ class Client
     /**
      * Add a additional output format.
      *
-     * @param  string $pCode
-     * @param  string $pMethod
+     * @param string $pCode
+     * @param string $pMethod
      * @return Client $this
      */
-    public function addOutputFormat($pCode, $pMethod)
+    public function addOutputFormat(string $pCode, string $pMethod): Client
     {
         $this->outputFormats[$pCode] = $pMethod;
 
@@ -363,10 +368,10 @@ class Client
     /**
      * Set the current output format.
      *
-     * @param  string $pFormat a key of $outputForms
+     * @param string $pFormat a key of $outputForms
      * @return Client
      */
-    public function setFormat($pFormat)
+    public function setFormat(string $pFormat): Client
     {
         $this->outputFormat = $pFormat;
 
@@ -378,7 +383,7 @@ class Client
      *
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -386,10 +391,10 @@ class Client
     /**
      * Set the url.
      *
-     * @param  string $pUrl
+     * @param string $pUrl
      * @return Client $this
      */
-    public function setUrl($pUrl)
+    public function setUrl(string $pUrl): Client
     {
         $this->url = $pUrl;
 
@@ -401,9 +406,9 @@ class Client
      *
      * @return Client
      */
-    public function setupFormats()
+    public function setupFormats(): Client
     {
-//through HTTP_ACCEPT
+        // through HTTP_ACCEPT
         if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], '*/*') === false) {
             foreach ($this->outputFormats as $formatCode => $formatMethod) {
                 if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false) {
@@ -413,7 +418,7 @@ class Client
             }
         }
 
-//through uri suffix
+        // through uri suffix
         if (preg_match('/\.(\w+)$/i', $this->getUrl(), $matches)) {
             if (isset($this->outputFormats[$matches[1]])) {
                 $this->outputFormat = $matches[1];
@@ -422,7 +427,7 @@ class Client
             }
         }
 
-//through _format parametr
+        // through _format parameter
         if (isset($_GET['_format'])) {
             if (isset($this->outputFormats[$_GET['_format']])) {
                 $this->outputFormat = $_GET['_format'];
