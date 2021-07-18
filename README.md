@@ -32,7 +32,7 @@ Create a `composer.json`:
 }
 ```
 
-and run
+then run
 
 ```bash
 $ wget https://getcomposer.org/composer.phar
@@ -246,8 +246,8 @@ class Tools {
 
 ## Responses
 
-The response body is always a array (JSON per default) containing a status code and the actual data. If a exception has
-been thrown, it contains the status 500, the exception class name as error and the message as message.
+The response body is always an array (JSON per default) containing a status code and the actual data. If an exception has
+been thrown, it contains the status 500, the exception class name as error, and the message as message.
 
 Some examples:
 
