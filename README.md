@@ -1,11 +1,10 @@
-Abigail
-==============
+# Abigail
+
 [![Integration](https://github.com/star-inc/Abigail/actions/workflows/integration.yml/badge.svg)](https://github.com/star-inc/Abigail/actions/workflows/integration.yml)
 
 Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP class for server side RESTful APIs.
 
-Features
---------
+## Features
 
 + Easy to use syntax
 + Regular Expression support
@@ -18,8 +17,7 @@ Features
 + Supports ?_method=`httpMethod` as addition to the actual HTTP method.
 + With auto-generation through PHP's `reflection`
 
-Installation
-------------
+## Installation
 
 - https://packagist.org/packages/starinc/abigail.
 - More information available under https://packagist.org/.
@@ -47,16 +45,15 @@ After the installation, you need to include the `vendor/autoload.php` to make th
 include 'vendor/autoload.php';
 ```
 
-Requirements
-============
+## Requirements
 
 - PHP 7.4 and above.
 - PHPUnit to execute the test suite.
 - Setup PATH_INFO in mod_rewrite (.htaccess) or other webserver configuration
 
-Example config:
-apache webserver
-----------------
+## Example config
+
+### Apache webserver
 
 ```
 #.htaccess
@@ -66,8 +63,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule (.+) index.php/$1 [L,QSA]
 ```
 
-nginx webserver
----------------
+### Nginx webserver
 
 ```
 // edit virtualhost /etc/nginx/conf.d/name_virtualhost_file
@@ -85,8 +81,7 @@ server {
 fastcgi_param PATH_INFO $fastcgi_script_name;
 ```
 
-Usage Demo
-----------
+## Usage Demo
 
 ### Way 1. The dirty & fast
 
@@ -300,8 +295,7 @@ Some examples:
   }
 ```
 
-License
--------
+## License
 
 Licensed under the MIT License. See the LICENSE file for more details.
 

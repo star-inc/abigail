@@ -12,7 +12,15 @@ jobs:
       - name: PHP Composer
         uses: php-actions/composer@v5
 
-      - name: PHPUnit tests
+      - name: PHPUnit tests (php74)
         uses: php-actions/phpunit@v3
         with:
           php_version: 7.4
+
+      - name: PHPUnit tests (php80)
+        uses: php-actions/phpunit@v3
+        with:
+          php_version: 8.0
+
+      - name: PHPUnit tests (latest)
+        uses: php-actions/phpunit@v3
