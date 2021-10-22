@@ -97,8 +97,8 @@ Server::create('/')
         return $bar;
     })
     ->addPostRoute('foo', function($field1, $field2) {
-      // do stuff with $field1, $field2 etc
-      // or you can directly get them with $_POST['field1']
+      // do stuff with $field1, $field2, etc.
+      // or you can directly get them with $_POST['field1'].
     })
 ->run();
 
@@ -176,7 +176,7 @@ Generates following entry points:
 use Abigail\Server;
 
 Server::create('/admin', new MyRestApi\Admin) //base entry points `/admin`
-    ->setDebugMode(true) //prints the debug trace, line number and file if a exception has been thrown.
+    ->setDebugMode(true) //prints the debug trace, line number and file if an exception has been thrown.
 
     ->addGetRoute('login', 'doLogin') // => /admin/login
     ->addGetRoute('logout', 'doLogout') // => /admin/logout
