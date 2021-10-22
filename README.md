@@ -2,7 +2,7 @@
 
 [![Integration](https://github.com/star-inc/Abigail/actions/workflows/integration.yml/badge.svg)](https://github.com/star-inc/Abigail/actions/workflows/integration.yml)
 
-Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP class for server side RESTful APIs.
+Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP microservice framework for server side RESTful APIs.
 
 ## Features
 
@@ -72,7 +72,7 @@ server {
  location / {
   include fastcgi_params;
      
-  fastcgi_pass unix:/var/run/php5-fpm.sock;
+  fastcgi_pass unix:/var/run/php-fpm.sock;
   fastcgi_param SCRIPT_FILENAME $document_root/index.php;
  }
 }
