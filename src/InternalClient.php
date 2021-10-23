@@ -15,9 +15,7 @@ class InternalClient extends Client
         $pMessage = array_reverse($pMessage, true);
         $pMessage['status'] = intval($pHttpCode);
         $pMessage = array_reverse($pMessage, true);
-
-        $method = $this->getOutputFormatMethod($this->getOutputFormat());
-
-        return $this->$method($pMessage);
+        $encoder = $this->getOutputFormatEncoder($this->getOutputFormat());
+        return $encoder($pMessage);
     }
 }

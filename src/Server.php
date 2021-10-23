@@ -36,13 +36,6 @@ class Server
     protected array $body_data = array();
 
     /**
-     * Blacklisted http get arguments.
-     *
-     * @var array
-     */
-    protected array $blacklistedGetParameters = array('_method', '_suppress_status_code');
-
-    /**
      * Current URL that triggers the controller.
      *
      * @var string
@@ -302,29 +295,6 @@ class Server
     public function getSuccessResponseWrapper(): ?callable
     {
         return $this->successResponseWrapper;
-    }
-
-    /**
-     * If this controller can not find a route,
-     * we fire this method and send the result.
-     *
-     * @param string $pFn Method name of current attached class
-     * @return Server $this
-     */
-    public function setFallbackMethod(string $pFn): Server
-    {
-        $this->fallbackMethod = $pFn;
-
-        return $this;
-    }
-
-    /**
-     * Getter for fallbackMethod
-     * @return string
-     */
-    public function fallbackMethod(): string
-    {
-        return $this->fallbackMethod;
     }
 
     /**
@@ -688,19 +658,6 @@ class Server
     }
 
     /**
-     * Removes a route.
-     *
-     * @param string $pUri
-     * @return Server
-     */
-    public function removeRoute(string $pUri): Server
-    {
-        unset($this->routes[$pUri]);
-
-        return $this;
-    }
-
-    /**
      * Sets the controller class.
      *
      * @param string|object $pClass
@@ -718,7 +675,7 @@ class Server
     }
 
     /**
-     * Setup the controller class.
+     * Set up the controller class.
      *
      * @param string $pClassName
      * @throws Exception
@@ -932,7 +889,7 @@ class Server
                     $m = $this->fallbackMethod;
                     return $this->send($this->controller->$m());
                 } else {
-                    return $this->sendBadRequest('RouteNotFoundException', "There is no route for '{$uri}'.");
+                    return $this->sendBadRequest('RouteNotFoundException', "There is no route for '$uri'.");
                 }
             } else {
                 return false;
@@ -953,7 +910,7 @@ class Server
 
             if (!method_exists($this->controller, $callableMethod)) {
                 $callableMethodClassName = get_class($this->controller);
-                return $this->sendBadRequest('MethodNotFoundException', "There is no method '{$callableMethod}' in {$callableMethodClassName}.");
+                return $this->sendBadRequest('MethodNotFoundException', "There is no method '$callableMethod' in $callableMethodClassName.");
             }
 
             $reflectionMethod = $ref->getMethod($callableMethod);
@@ -993,12 +950,10 @@ class Server
                 $arguments[] = $thisArgs;
             } else {
                 if (!$param->isOptional() && !isset($_GET[$name]) && !isset($this->body_data[$name])) {
-                    return $this->sendBadRequest('MissingRequiredArgumentException', "Argument '{$name}' is missing.");
+                    return $this->sendBadRequest('MissingRequiredArgumentException', "Argument '$name' is missing.");
                 }
 
-                $arguments[] = isset($_GET[$name])
-                    ? $_GET[$name]
-                    : ($this->body_data[$name] ?? $param->getDefaultValue());
+                $arguments[] = $_GET[$name] ?? ($this->body_data[$name] ?? $param->getDefaultValue());
             }
         }
 
@@ -1018,6 +973,9 @@ class Server
         return $this->fireMethod($callableMethod, $object, $arguments);
     }
 
+    /**
+     * @throws Exception
+     */
     public function fireMethod($pMethod, $pController, $pArguments): string
     {
         $callable = false;
@@ -1045,12 +1003,12 @@ class Server
     /**
      * Describe a route or the whole controller with all routes.
      *
-     * @param string $pUri
+     * @param string|null $pUri
      * @param boolean $pOnlyRoutes
      * @return array
      * @throws ReflectionException
      */
-    public function describe($pUri = null, $pOnlyRoutes = false): array
+    public function describe(string $pUri = null, bool $pOnlyRoutes = false): array
     {
         $definition = array();
 
