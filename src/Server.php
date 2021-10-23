@@ -154,11 +154,11 @@ class Server
      * Constructor
      *
      * @param string $pTriggerUrl
-     * @param null $pControllerClass
-     * @param null $pParentController
+     * @param string|object|null $pControllerClass
+     * @param Server|null $pParentController
      * @throws Exception
      */
-    public function __construct(string $pTriggerUrl, $pControllerClass = null, $pParentController = null)
+    public function __construct(string $pTriggerUrl, $pControllerClass = null, Server $pParentController = null)
     {
         $this->normalizeUrl($pTriggerUrl);
 
@@ -1066,14 +1066,13 @@ class Server
     }
 
     /**
-     * Fetches all meta data information as params, return type etc.
+     * Fetches all metadata information as params, return type etc.
      *
      * @param ReflectionFunctionAbstract $pMethod
-     * @param null $pRegMatches
+     * @param array|null $pRegMatches
      * @return bool|array
-     * @throws ReflectionException
      */
-    public function getMethodMetaData(ReflectionFunctionAbstract $pMethod, $pRegMatches = null)
+    public function getMethodMetaData(ReflectionFunctionAbstract $pMethod, array $pRegMatches = null)
     {
         $file = $pMethod->getFileName();
         $startLine = $pMethod->getStartLine();
