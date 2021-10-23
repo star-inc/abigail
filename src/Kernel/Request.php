@@ -33,16 +33,16 @@ class Request
      */
     public function readDataFromBody()
     {
-        $raw_content_type = $_SERVER["CONTENT_TYPE"] ?? "application/x-www-form-urlencoded";
-        $raw_content_type_array = explode(";", $raw_content_type);
-        if (isset($raw_content_type_array[0])) {
-            $raw_content = file_get_contents("php://input");
-            switch ($raw_content_type_array[0]) {
+        $rawContentType = $_SERVER["CONTENT_TYPE"] ?? "application/x-www-form-urlencoded";
+        $rawContentTypeArray = explode(";", $rawContentType);
+        if (isset($rawContentTypeArray[0])) {
+            $rawContent = file_get_contents("php://input");
+            switch ($rawContentTypeArray[0]) {
                 case "application/json" :
-                    $this->bodyData = json_decode($raw_content, true) ?? array();
+                    $this->bodyData = json_decode($rawContent, true) ?? array();
                     break;
                 case "application/x-www-form-urlencoded" :
-                    $this->bodyData = self::form_decode($raw_content) ?? array();
+                    $this->bodyData = self::form_decode($rawContent) ?? array();
                     break;
                 default:
                     $this->bodyData = array();
