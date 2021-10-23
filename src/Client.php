@@ -10,12 +10,16 @@ namespace Abigail;
 class Client
 {
     /**
+     * List of possible methods.
+     * @var array
+     */
+    public array $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
+    /**
      * Current output format.
      *
      * @var string
      */
     private string $outputFormat = 'json';
-
     /**
      * List of possible output formats.
      *
@@ -25,13 +29,6 @@ class Client
         'json' => '\\Abigail\\Encoder\\JSON',
         'xml' => '\\Abigail\\Encoder\\XML'
     );
-
-    /**
-     * List of possible methods.
-     * @var array
-     */
-    public array $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
-
     /**
      * Current URL.
      *
@@ -63,6 +60,65 @@ class Client
         }
 
         $this->setupFormats();
+    }
+
+    /**
+     * Setup formats.
+     *
+     * @return Client
+     */
+    public function setupFormats(): Client
+    {
+        // through HTTP_ACCEPT
+        if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], '*/*') === false) {
+            foreach (array_keys($this->outputFormats) as $formatCode) {
+                if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false) {
+                    $this->outputFormat = $formatCode;
+                    break;
+                }
+            }
+        }
+
+        // through uri suffix
+        if (preg_match('/\.(\w+)$/i', $this->getUrl(), $matches)) {
+            if (isset($this->outputFormats[$matches[1]])) {
+                $this->outputFormat = $matches[1];
+                $url = $this->getUrl();
+                $this->setUrl(substr($url, 0, (strlen($this->outputFormat) * -1) - 1));
+            }
+        }
+
+        // through _format parameter
+        if (isset($_GET['_format'])) {
+            if (isset($this->outputFormats[$_GET['_format']])) {
+                $this->outputFormat = $_GET['_format'];
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the url.
+     *
+     * @return string
+     */
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    /**
+     * Set the url.
+     *
+     * @param string $pUrl
+     * @return Client $this
+     */
+    public function setUrl(string $pUrl): Client
+    {
+        $this->url = $pUrl;
+
+        return $this;
     }
 
     /**
@@ -152,65 +208,6 @@ class Client
     public function setMethod(string $pMethod): Client
     {
         $this->method = $pMethod;
-
-        return $this;
-    }
-
-    /**
-     * Returns the url.
-     *
-     * @return string
-     */
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    /**
-     * Set the url.
-     *
-     * @param string $pUrl
-     * @return Client $this
-     */
-    public function setUrl(string $pUrl): Client
-    {
-        $this->url = $pUrl;
-
-        return $this;
-    }
-
-    /**
-     * Setup formats.
-     *
-     * @return Client
-     */
-    public function setupFormats(): Client
-    {
-        // through HTTP_ACCEPT
-        if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], '*/*') === false) {
-            foreach (array_keys($this->outputFormats) as $formatCode) {
-                if (strpos($_SERVER['HTTP_ACCEPT'], $formatCode) !== false) {
-                    $this->outputFormat = $formatCode;
-                    break;
-                }
-            }
-        }
-
-        // through uri suffix
-        if (preg_match('/\.(\w+)$/i', $this->getUrl(), $matches)) {
-            if (isset($this->outputFormats[$matches[1]])) {
-                $this->outputFormat = $matches[1];
-                $url = $this->getUrl();
-                $this->setUrl(substr($url, 0, (strlen($this->outputFormat) * -1) - 1));
-            }
-        }
-
-        // through _format parameter
-        if (isset($_GET['_format'])) {
-            if (isset($this->outputFormats[$_GET['_format']])) {
-                $this->outputFormat = $_GET['_format'];
-            }
-        }
 
         return $this;
     }

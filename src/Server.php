@@ -502,14 +502,6 @@ class Server
     }
 
     /**
-     * @return Request
-     */
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    /**
      * @return false|string
      * @throws Exception
      */
@@ -526,6 +518,14 @@ class Server
         } else {
             return false;
         }
+    }
+
+    /**
+     * @return Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
     }
 
     /**

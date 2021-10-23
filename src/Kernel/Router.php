@@ -11,20 +11,12 @@ use ReflectionMethod;
 
 final class Router
 {
-    private Server $server;
-
     /**
      * List of excluded methods.
      *
      * @var array|string array('methodOne', 'methodTwo') or * for all methods
      */
     protected $collectRoutesExclude = array('__construct');
-
-    public function __construct(Server $server)
-    {
-        $this->server = $server;
-    }
-
     /**
      * Current routes.
      *
@@ -36,7 +28,6 @@ final class Router
      * @var array
      */
     protected array $routes = array();
-
     /**
      * If this controller can not find a route,
      * we fire this method and send the result.
@@ -44,6 +35,19 @@ final class Router
      * @var string
      */
     protected string $fallbackMethod = '';
+    /**
+     * Sets whether the service should serve route descriptions
+     * through the OPTIONS method.
+     *
+     * @var boolean
+     */
+    protected bool $describeRoutes = true;
+    private Server $server;
+
+    public function __construct(Server $server)
+    {
+        $this->server = $server;
+    }
 
     /**
      * @return array
@@ -83,14 +87,6 @@ final class Router
         $this->describeRoutes = $pDescribeRoutes;
         return $this->server;
     }
-
-    /**
-     * Sets whether the service should serve route descriptions
-     * through the OPTIONS method.
-     *
-     * @var boolean
-     */
-    protected bool $describeRoutes = true;
 
     /**
      * Setup automatic routes.
@@ -178,6 +174,20 @@ final class Router
     }
 
     /**
+     * Same as addRoute, but limits to GET.
+     *
+     * @param string $pUri
+     * @param callable|string $pCb The method name of the passed controller or a php callable.
+     * @return Server
+     */
+    public function addGetRoute(string $pUri, $pCb): Server
+    {
+        $this->addRoute($pUri, $pCb);
+
+        return $this->server;
+    }
+
+    /**
      * Adds a new route for all http methods (get, post, put, delete, options, head, patch).
      *
      * @param string $pUri
@@ -188,20 +198,6 @@ final class Router
     public function addRoute(string $pUri, $pCb, string $pHttpMethod = '_all_'): Server
     {
         $this->routes[$pUri][$pHttpMethod] = $pCb;
-
-        return $this->server;
-    }
-
-    /**
-     * Same as addRoute, but limits to GET.
-     *
-     * @param string $pUri
-     * @param callable|string $pCb The method name of the passed controller or a php callable.
-     * @return Server
-     */
-    public function addGetRoute(string $pUri, $pCb): Server
-    {
-        $this->addRoute($pUri, $pCb);
 
         return $this->server;
     }

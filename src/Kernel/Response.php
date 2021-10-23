@@ -12,42 +12,11 @@ use Exception;
 
 final class Response
 {
-    private Server $server;
-
-    public function __construct(Server $server)
-    {
-        $this->server = $server;
-    }
-
-    /**
-     * Send exception function/method. Will be fired if a route-method throws a exception.
-     * Please die/exit in your function then.
-     * Arguments: (exception)
-     *
-     * @var callable
-     */
-    protected $sendExceptionFn;
-
-    /**
-     * If the lib should send HTTP status codes.
-     * Some Client libs does not support this, you can deactivate it via
-     * ->setHttpStatusCodes(false);
-     *
-     * @var boolean
-     */
-    protected bool $withStatusCode = true;
-
-    /**
-     * @var callable
-     */
-    protected $successResponseWrapper;
-
     /**
      * List of possible methods.
      * @var array
      */
     public const METHODS = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
-
     /**
      * @var array|string[]
      */
@@ -94,6 +63,34 @@ final class Response
         505 => 'HTTP Version Not Supported',
         509 => 'Bandwidth Limit Exceeded'
     );
+    /**
+     * Send exception function/method. Will be fired if a route-method throws a exception.
+     * Please die/exit in your function then.
+     * Arguments: (exception)
+     *
+     * @var callable
+     */
+    protected $sendExceptionFn;
+
+    /**
+     * If the lib should send HTTP status codes.
+     * Some Client libs does not support this, you can deactivate it via
+     * ->setHttpStatusCodes(false);
+     *
+     * @var boolean
+     */
+    protected bool $withStatusCode = true;
+
+    /**
+     * @var callable
+     */
+    protected $successResponseWrapper;
+    private Server $server;
+
+    public function __construct(Server $server)
+    {
+        $this->server = $server;
+    }
 
     /**
      *
