@@ -19,6 +19,19 @@ use TypeError;
 
 /**
  * \Abigail\Server - A REST server class for RESTful APIs.
+ * @method Server setDescribeRoutes(bool $pDescribeRoutes)
+ * @method Server collectRoutes()
+ * @method Server addRoute(string $pUri, $pCb, string $pHttpMethod)
+ * @method Server addGetRoute(string $pUri, $pCb)
+ * @method Server addPostRoute(string $pUri, $pCb)
+ * @method Server addPutRoute(string $pUri, $pCb)
+ * @method Server addPatchRoute(string $pUri, $pCb)
+ * @method Server addHeadRoute(string $pUri, $pCb)
+ * @method Server addOptionsRoute(string $pUri, $pCb)
+ * @method Server addDeleteRoute(string $pUri, $pCb)
+ * @method Server setHttpStatusCodes(string $pUri, $pCb)
+ * @method Server setSuccessResponseWrapper(string $pUri, $pCb)
+ * @method Server setExceptionHandler(string $pUri, $pCb)
  */
 class Server
 {
@@ -306,11 +319,12 @@ class Server
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * Magic method to call settings
+     * @param string $name method name
+     * @param array $arguments method arguments
      * @return mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         return $this->getRouter()->$name(...$arguments) ?? $this->getResponse()->$name(...$arguments);
     }
@@ -566,6 +580,7 @@ class Server
                 return $this->getResponse()->sendException($e);
             }
         }
+
         return "";
     }
 
