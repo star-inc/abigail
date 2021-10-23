@@ -2,7 +2,8 @@
 
 [![Integration](https://github.com/star-inc/Abigail/actions/workflows/integration.yml/badge.svg)](https://github.com/star-inc/Abigail/actions/workflows/integration.yml)
 
-Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP microservice framework for server side RESTful APIs.
+Abigail is the fork from `marcj/php-rest-service`, which is a simple and fast PHP microservice framework for server side
+RESTful APIs.
 
 ## Features
 
@@ -246,8 +247,8 @@ class Tools {
 
 ## Responses
 
-The response body is always an array (JSON per default) containing a status code and the actual data. If an exception has
-been thrown, it contains the status 500, the exception class name as error, and the message as message.
+The response body is always an array (JSON per default) containing a status code and the actual data. If an exception
+has been thrown, it contains the status 500, the exception class name as error, and the message as message.
 
 Some examples:
 

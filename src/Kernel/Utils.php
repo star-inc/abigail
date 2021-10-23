@@ -24,7 +24,7 @@ final class Utils
         if ('/' === $pUrl) {
             return;
         }
-        if (substr($pUrl, -1) == '/') {
+        if (substr($pUrl, -1) === '/') {
             $pUrl = substr($pUrl, 0, -1);
         }
         if (substr($pUrl, 0, 1) != '/') {
@@ -82,7 +82,7 @@ final class Utils
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if (substr($line, 0, 1) == '@') {
+            if (substr($line, 0, 1) === '@') {
                 if ($currentTag) {
                     $tags[$currentTag][] = $currentData;
                 } else {
@@ -109,7 +109,7 @@ final class Utils
             'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*(.*)/', array('type', 'description')),
         );
         foreach ($tags as $tag => &$data) {
-            if ($tag == 'description') {
+            if ($tag === 'description') {
                 continue;
             }
             foreach ($data as &$item) {
@@ -124,7 +124,7 @@ final class Utils
                     }
                 }
             }
-            if (count($data) == 1) {
+            if (count($data) === 1) {
                 $data = $data[0];
             }
         }
@@ -201,14 +201,14 @@ final class Utils
         $startLine = $pMethod->getStartLine();
 
         $fh = fopen($file, 'r');
-        if (!$fh) {
+        if ($fh === false) {
             return false;
         }
 
         $lineNr = 1;
         $lines = array();
         while (($buffer = fgets($fh)) !== false) {
-            if ($lineNr == $startLine) {
+            if ($lineNr === $startLine) {
                 break;
             }
             $lines[$lineNr] = $buffer;
@@ -237,7 +237,7 @@ final class Utils
             }
 
             $trimmed = trim($line);
-            if ($trimmed == '') {
+            if ($trimmed === '') {
                 continue;
             }
 

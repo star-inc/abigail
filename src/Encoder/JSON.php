@@ -1,5 +1,4 @@
 <?php
-
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -54,29 +53,29 @@ class JSON extends EncoderBase implements EncoderInterface
             // Grab the next character in the string.
             $char = substr($json, $i, 1);
             // Are we inside a quoted string?
-            if ($char == '"' && !$inEscapeMode) {
+            if ($char === '"' && !$inEscapeMode) {
                 $outOfQuotes = !$outOfQuotes;
                 // If this character is the end of an element,
                 // output a new line and indent the next line.
-            } elseif (($char == '}' || $char == ']') && $outOfQuotes) {
+            } elseif (($char === '}' || $char === ']') && $outOfQuotes) {
                 $result .= $newLine;
                 $pos--;
                 $result .= str_repeat($indentStr, $pos);
-            } elseif ($char == ':' && $outOfQuotes) {
+            } elseif ($char === ':' && $outOfQuotes) {
                 $char .= ' ';
             }
             // Add the character to the result string.
             $result .= $char;
             // If the last character was the beginning of an element,
             // output a new line and indent the next line.
-            if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
+            if (($char === ',' || $char === '{' || $char === '[') && $outOfQuotes) {
                 $result .= $newLine;
-                if ($char == '{' || $char == '[') {
+                if ($char === '{' || $char === '[') {
                     $pos++;
                 }
                 $result .= str_repeat($indentStr, $pos);
             }
-            if ($char == '\\' && !$inEscapeMode) {
+            if ($char === '\\' && !$inEscapeMode) {
                 $inEscapeMode = true;
             } else {
                 $inEscapeMode = false;

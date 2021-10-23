@@ -1,5 +1,4 @@
 <?php
-
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -293,7 +292,7 @@ class Server
                 } else {
                     $this->controller = new $pClassName($this);
                 }
-                if (get_parent_class($this->controller) == '\Abigail\Server') {
+                if (get_parent_class($this->controller) === '\Abigail\Server') {
                     $this->controller->setClient($this->getClient());
                 }
             } catch (Exception $e) {
@@ -332,9 +331,9 @@ class Server
     /**
      * Alias for getParentController()
      *
-     * @return Server
+     * @return Server|null
      */
-    public function done(): Server
+    public function done(): ?Server
     {
         return $this->getParentController();
     }
@@ -386,7 +385,7 @@ class Server
         Kernel\Utils::normalizeUrl($pTriggerUrl);
 
         $base = $this->triggerUrl;
-        if ($base == '/') {
+        if ($base === '/') {
             $base = '';
         }
 
@@ -456,7 +455,7 @@ class Server
         // Does the requested uri exist?
         list($callableMethod, $regexArguments, $method) = $this->getRouter()->findRoute($uri, $requiredMethod);
 
-        if ((!$callableMethod || $method != 'options') && $requiredMethod == 'options') {
+        if ((!$callableMethod || $method != 'options') && $requiredMethod === 'options') {
             $description = Kernel\Utils::describe($this, $uri);
             return $this->getResponse()->send($description);
         }
@@ -474,7 +473,7 @@ class Server
             }
         }
 
-        if ($method == '_all_') {
+        if ($method === '_all_') {
             $arguments[] = $method;
         }
 
@@ -500,7 +499,7 @@ class Server
 
         $params = $reflectionMethod->getParameters();
 
-        if ($method == '_all_') {
+        if ($method === '_all_') {
             // First parameter is $pMethod
             array_shift($params);
         }
@@ -516,10 +515,10 @@ class Server
         // Collect arguments
         foreach ($params as $param) {
             $name = Kernel\Utils::argumentName($param->getName());
-            if ($name == '_') {
+            if ($name === '_') {
                 $thisArgs = array();
                 foreach ($_GET as $k => $v) {
-                    if (substr($k, 0, 1) == '_' && $k != '_suppress_status_code') {
+                    if (substr($k, 0, 1) === '_' && $k != '_suppress_status_code') {
                         $thisArgs[$k] = $v;
                     }
                 }
@@ -533,9 +532,7 @@ class Server
         }
 
         if ($this->checkAccessFn) {
-            $args[] = $this->getClient()->getUrl();
-            $args[] = $route;
-            $args[] = $arguments;
+            $args = array($this->getClient()->getUrl(), $route, $arguments);
             try {
                 call_user_func_array($this->checkAccessFn, $args);
             } catch (Exception $e) {

@@ -1,5 +1,4 @@
 <?php
-
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -15,7 +14,14 @@ namespace Abigail;
  */
 class InternalClient extends Client
 {
-    public function sendResponse(string $pHttpCode, $pMessage)
+    /**
+     * Sends the simulated response.
+     *
+     * @param string $pHttpCode
+     * @param $pMessage
+     * @return string
+     */
+    public function sendResponse(string $pHttpCode, $pMessage): string
     {
         $pMessage = array_reverse($pMessage, true);
         $pMessage['status'] = intval($pHttpCode);

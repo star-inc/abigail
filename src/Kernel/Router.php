@@ -100,13 +100,13 @@ class Router
      */
     public function collectRoutes(): Server
     {
-        if ($this->collectRoutesExclude == '*') {
+        if ($this->collectRoutesExclude === '*') {
             return $this->server;
         }
 
         $methods = get_class_methods($this->server->getController());
         foreach ($methods as $method) {
-            if (in_array($method, $this->collectRoutesExclude)) {
+            if (is_array($this->collectRoutesExclude) && in_array($method, $this->collectRoutesExclude)) {
                 continue;
             }
 
@@ -114,7 +114,7 @@ class Router
             $uri = Utils::camelCase2Dashes((empty($info[1]) ? '' : $info[1]));
 
             $httpMethod = $info[0];
-            if ($httpMethod == 'all') {
+            if ($httpMethod === 'all') {
                 $httpMethod = '_all_';
             }
 
@@ -165,7 +165,7 @@ class Router
                             continue;
                         }
                     }
-                    $arguments = [];
+                    $arguments = array();
                     array_shift($matches);
                     foreach ($matches as $match) {
                         $arguments[] = $match;

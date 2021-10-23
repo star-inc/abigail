@@ -30,7 +30,7 @@ class MyRoutes
      */
     public function postLogin(string $username, string $password): bool
     {
-        return $username == 'peter' && $password == 'pwd';
+        return $username === 'peter' && $password === 'pwd';
     }
 
     /**

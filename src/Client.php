@@ -1,5 +1,4 @@
 <?php
-
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -69,10 +68,10 @@ class Client
      * Sends the actual response.
      *
      * @param string $pHttpCode
-     * @param        $pMessage
-     * @return mixed
+     * @param mixed $pMessage
+     * @return string
      */
-    public function sendResponse(string $pHttpCode, $pMessage)
+    public function sendResponse(string $pHttpCode, $pMessage): string
     {
         $suppressStatusCode = $_GET['_suppress_status_code'] ?? false;
         if ($this->controller->getResponse()->getHttpStatusCodes() &&
@@ -84,19 +83,14 @@ class Client
         } elseif (php_sapi_name() !== 'cli') {
             header('HTTP/1.0 200 OK');
         }
-
         $pMessage = array_reverse($pMessage, true);
         $pMessage['status'] = intval($pHttpCode);
         $pMessage = array_reverse($pMessage, true);
-
-        $method = $this->getOutputFormatEncoder($this->getOutputFormat());
-
+        $encoder = $this->getOutputFormatEncoder($this->getOutputFormat());
         if (php_sapi_name() !== 'cli') {
-            echo $this->$method($pMessage);
-            exit;
-        } else {
-            return $this->$method($pMessage);
+            echo $encoder($pMessage);
         }
+        return $encoder($pMessage);
     }
 
     /**

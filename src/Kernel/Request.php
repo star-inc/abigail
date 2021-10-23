@@ -1,5 +1,4 @@
 <?php
-
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -40,13 +39,13 @@ class Request
             $raw_content = file_get_contents("php://input");
             switch ($raw_content_type_array[0]) {
                 case "application/json" :
-                    $this->bodyData = json_decode($raw_content, true) ?? [];
+                    $this->bodyData = json_decode($raw_content, true) ?? array();
                     break;
                 case "application/x-www-form-urlencoded" :
-                    $this->bodyData = self::form_decode($raw_content) ?? [];
+                    $this->bodyData = self::form_decode($raw_content) ?? array();
                     break;
                 default:
-                    $this->bodyData = [];
+                    $this->bodyData = array();
             }
         } else {
             throw new Exception("No the header content-type configured.");
