@@ -9,6 +9,10 @@ namespace Abigail\Kernel;
 
 final class PhpDoc
 {
+    /**
+     * @param array $lines
+     * @return string
+     */
     public static function scan(array $lines): string
     {
         $phpDoc = '';
@@ -48,6 +52,12 @@ final class PhpDoc
         return $phpDoc;
     }
 
+    /**
+     * @param array $phpDoc
+     * @param array $refParams
+     * @param array|null $pRegMatches
+     * @return array
+     */
     public static function fill(array $phpDoc, array $refParams, ?array $pRegMatches): array
     {
         $params = array();
@@ -177,5 +187,4 @@ final class PhpDoc
 
         return $tags;
     }
-
 }
