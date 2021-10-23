@@ -451,7 +451,7 @@ class Server
 
         // Return a summary of one route or all routes through OPTIONS
         if ((!$callableMethod || $method != 'options') && $requiredMethod == 'options') {
-            $description = Kernel\Utils::describe($this, $apiBaseUri);
+            $description = Kernel\Inspector::describe($this, $apiBaseUri);
             return $this->getResponse()->send($description);
         }
 
@@ -468,18 +468,19 @@ class Server
         }
 
         // Open class and scan methods
-        $scannedParams = Kernel\Utils::scanClassMethods($this, $method, $callableMethod);
+        $scannedParams = Kernel\Inspector::scanClassMethods($this, $method, $callableMethod);
         if (!is_array($scannedParams)) {
             return $scannedParams;
         }
 
         // Remove regex arguments
-        for ($i = 0; $i < count($regexArguments); $i++) {
+        $regexArgumentsLength = count($regexArguments);
+        for ($i = 0; $i < $regexArgumentsLength; $i++) {
             array_shift($scannedParams);
         }
 
         // Collect arguments
-        $collectedArguments = Kernel\Utils::collectArguments($this, $scannedParams);
+        $collectedArguments = Kernel\Inspector::collectArguments($this, $scannedParams);
         if (!is_array($collectedArguments)) {
             return $collectedArguments;
         }

@@ -123,7 +123,7 @@ final class Router
                 continue;
             }
 
-            $phpDocs = Utils::getMethodMetaData($reflectionMethod);
+            $phpDocs = Inspector::getMethodMetaData($reflectionMethod);
             if (isset($phpDocs['url'])) {
                 if (isset($phpDocs['url']['url'])) {
                     //only one route
