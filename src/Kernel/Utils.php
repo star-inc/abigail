@@ -2,24 +2,39 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail\Kernel;
 
 use Abigail\Server;
+use Exception;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
+use ReflectionParameter;
 
 final class Utils
 {
+    /**
+     * As known as the polyfill of startsWith
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
+     */
+    public static function startsWith(string $haystack, string $needle): bool
+    {
+        return strpos($haystack, $needle) === 0;
+    }
+
     /**
      * Normalize $pUrl. Cuts of the trailing slash.
      *
      * @param string $pUrl
      */
-    public static function normalizeUrl(string &$pUrl)
+    public static function normalizeUrl(string &$pUrl): void
     {
         if ('/' === $pUrl) {
             return;
@@ -189,6 +204,69 @@ final class Utils
     }
 
     /**
+     * @param Server $server
+     * @param string $httpMethod
+     * @param callable|string $callableMethod
+     * @return ReflectionParameter[]|string
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public static function scanClassMethods(Server $server, string $httpMethod, $callableMethod)
+    {
+        if ($server->getController() && is_string($callableMethod)) {
+            $ref = new ReflectionClass($server->getController());
+            if (!method_exists($server->getController(), $callableMethod)) {
+                $callableMethodClassName = get_class($server->getController());
+                $reason = "There is no method '$callableMethod' in $callableMethodClassName.";
+                return $server->getResponse()->sendBadRequest('MethodNotFoundException', $reason);
+            }
+            $reflectionMethod = $ref->getMethod($callableMethod);
+        } elseif (is_callable($callableMethod)) {
+            $reflectionMethod = new ReflectionFunction($callableMethod);
+        } else {
+            throw new Exception("Unknown");
+        }
+
+        $params = $reflectionMethod->getParameters();
+
+        if ($httpMethod === '_all_') {
+            // First parameter is $pMethod
+            array_shift($params);
+        }
+
+        return $params;
+    }
+
+    /**
+     * @param Server $server
+     * @param array $params
+     * @return array|string
+     * @throws Exception
+     */
+    public static function collectArguments(Server $server, array $params)
+    {
+        $arguments = array();
+        foreach ($params as $param) {
+            $name = self::argumentName($param->getName());
+            if ($name === '_') {
+                $thisArgs = array();
+                foreach ($_GET as $k => $v) {
+                    if (substr($k, 0, 1) === '_' && $k != '_suppress_status_code') {
+                        $thisArgs[$k] = $v;
+                    }
+                }
+                $arguments[] = $thisArgs;
+            } else {
+                if (!$param->isOptional() && !isset($_GET[$name]) && is_null($server->getRequest()->getData($name))) {
+                    return $server->getResponse()->sendBadRequest('MissingRequiredArgumentException', "Argument '$name' is missing.");
+                }
+                $arguments[] = $_GET[$name] ?? ($server->getRequest()->getData($name) ?? $param->getDefaultValue());
+            }
+        }
+        return $arguments;
+    }
+
+    /**
      * Fetches all metadata information as params, return type etc.
      *
      * @param ReflectionFunctionAbstract $pMethod
@@ -221,7 +299,6 @@ final class Utils
         while ($line = array_pop($lines)) {
             if ($blockStarted) {
                 $phpDoc = $line . $phpDoc;
-
                 //if start comment block: /*
                 if (preg_match('/\s*\t*\/\*/', $line)) {
                     break;
@@ -230,7 +307,7 @@ final class Utils
             } else {
                 //we are not in a comment block.
                 //if class def, array def or close broken from fn comes above
-                //then we dont have phpdoc
+                //then we don't have phpdoc
                 if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)) {
                     break;
                 }

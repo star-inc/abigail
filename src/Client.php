@@ -2,6 +2,7 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail;
@@ -65,7 +66,7 @@ class Client
     }
 
     /**
-     * Sends the actual response.
+     * Send the actual response.
      *
      * @param string $pHttpCode
      * @param mixed $pMessage

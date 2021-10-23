@@ -2,6 +2,7 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail;
@@ -15,7 +16,7 @@ namespace Abigail;
 class InternalClient extends Client
 {
     /**
-     * Sends the simulated response.
+     * Send the simulated response.
      *
      * @param string $pHttpCode
      * @param $pMessage

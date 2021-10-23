@@ -27,9 +27,9 @@ Create a `composer.json`:
 
 ```json
 {
-    "require": {
-        "starinc/abigail": "*"
-    }
+  "require": {
+    "starinc/abigail": "*"
+  }
 }
 ```
 

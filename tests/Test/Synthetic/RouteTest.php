@@ -2,19 +2,23 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 
 namespace Test\Synthetic;
 
 use Abigail\Kernel\Response;
 use Abigail\Server;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 class RouteTest extends TestCase
 {
 
-    public function testAllRoutesClosures()
+    /**
+     * @throws ReflectionException
+     */
+    public function testAllRoutesClosures(): void
     {
-
         $abigail = Server::create('/')
             ->setClient('Abigail\\InternalClient')
             ->addGetRoute('test', function () {

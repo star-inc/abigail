@@ -2,6 +2,7 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail;
@@ -11,9 +12,7 @@ use Abigail\Kernel\Response;
 use Abigail\Kernel\Router;
 use Exception;
 use InvalidArgumentException;
-use ReflectionClass;
 use ReflectionException;
-use ReflectionFunction;
 use TypeError;
 
 /**
@@ -263,7 +262,7 @@ class Server
      * @param string|object $pClass
      * @throws Exception
      */
-    public function setClass($pClass)
+    public function setClass($pClass): void
     {
         if (is_string($pClass)) {
             $this->createControllerClass($pClass);
@@ -280,7 +279,7 @@ class Server
      * @param string $pClassName
      * @throws Exception
      */
-    protected function createControllerClass(string $pClassName)
+    protected function createControllerClass(string $pClassName): void
     {
         if ($pClassName != '') {
             try {
@@ -307,7 +306,7 @@ class Server
      * Factory.
      *
      * @param string $pTriggerUrl
-     * @param mixed $pControllerClass
+     * @param string|object $pControllerClass
      *
      * @return Server $this
      */
@@ -375,7 +374,7 @@ class Server
      * Attach a sub controller.
      *
      * @param string $pTriggerUrl
-     * @param mixed $pControllerClass A class name (autoloader required) or a instance of a class.
+     * @param string|object $pControllerClass A class name (autoloader required) or an instance of a class.
      *
      * @return Server new created Server. Use done() to switch the context back to the parent.
      * @throws Exception
@@ -402,7 +401,7 @@ class Server
      * @param string $pUri
      * @param string $pMethod The HTTP Method
      * @return bool|string
-     * @throws ReflectionException
+     * @throws ReflectionException|Exception
      */
     public function simulateCall(string $pUri, string $pMethod = 'get')
     {
@@ -419,10 +418,9 @@ class Server
     /**
      * Fire the magic!
      *
-     * Searches the method and sends the data to the client.
+     * Searches the method and Send the data to the client.
      *
-     * @return bool|string
-     * @throws ReflectionException
+     * @return false|string
      * @throws Exception
      */
     public function run()
@@ -436,41 +434,29 @@ class Server
 
         $requestedUrl = $this->getClient()->getUrl();
         Kernel\Utils::normalizeUrl($requestedUrl);
-        //check if it's in our area
-        if (strpos($requestedUrl, $this->triggerUrl) !== 0) {
-            return "";
+        if (!Kernel\Utils::startsWith($requestedUrl, $this->triggerUrl)) {
+            return false;
         }
 
-        $endPos = $this->triggerUrl === '/' ? 1 : strlen($this->triggerUrl) + 1;
-        $uri = substr($requestedUrl, $endPos);
-
-        if (!$uri) {
-            $uri = '';
+        $apiBaseUri = substr($requestedUrl, $this->triggerUrl === '/' ? 1 : strlen($this->triggerUrl) + 1);
+        if ($apiBaseUri === false) {
+            $apiBaseUri = '';
         }
 
-        $route = false;
         $arguments = array();
         $requiredMethod = $this->getClient()->getMethod();
 
         // Does the requested uri exist?
-        list($callableMethod, $regexArguments, $method) = $this->getRouter()->findRoute($uri, $requiredMethod);
+        list($callableMethod, $regexArguments, $method) = $this->getRouter()->findRoute($apiBaseUri, $requiredMethod);
 
-        if ((!$callableMethod || $method != 'options') && $requiredMethod === 'options') {
-            $description = Kernel\Utils::describe($this, $uri);
+        // Return a summary of one route or all routes through OPTIONS
+        if ((!$callableMethod || $method != 'options') && $requiredMethod == 'options') {
+            $description = Kernel\Utils::describe($this, $apiBaseUri);
             return $this->getResponse()->send($description);
         }
 
         if (empty($callableMethod)) {
-            if (!$this->getParentController()) {
-                if ($this->getRouter()->getFallbackMethod()) {
-                    $m = $this->getRouter()->getFallbackMethod();
-                    return $this->getResponse()->send($this->controller->$m());
-                } else {
-                    return $this->getResponse()->sendBadRequest('RouteNotFoundException', "There is no route for '$uri'.");
-                }
-            } else {
-                return false;
-            }
+            return $this->fireParentController($apiBaseUri);
         }
 
         if ($method === '_all_') {
@@ -481,67 +467,35 @@ class Server
             $arguments = array_merge($arguments, $regexArguments);
         }
 
-        // Open class and scan method
-        if ($this->controller && is_string($callableMethod)) {
-            $ref = new ReflectionClass($this->controller);
-
-            if (!method_exists($this->controller, $callableMethod)) {
-                $callableMethodClassName = get_class($this->controller);
-                return $this->getResponse()->sendBadRequest('MethodNotFoundException', "There is no method '$callableMethod' in $callableMethodClassName.");
-            }
-
-            $reflectionMethod = $ref->getMethod($callableMethod);
-        } elseif (is_callable($callableMethod)) {
-            $reflectionMethod = new ReflectionFunction($callableMethod);
-        } else {
-            throw new Exception("Unknown");
-        }
-
-        $params = $reflectionMethod->getParameters();
-
-        if ($method === '_all_') {
-            // First parameter is $pMethod
-            array_shift($params);
+        // Open class and scan methods
+        $scannedParams = Kernel\Utils::scanClassMethods($this, $method, $callableMethod);
+        if (!is_array($scannedParams)) {
+            return $scannedParams;
         }
 
         // Remove regex arguments
-        $argumentsLength = count($arguments);
-        for ($i = 0; $i < $argumentsLength; $i++) {
-            array_shift($params);
+        for ($i = 0; $i < count($regexArguments); $i++) {
+            array_shift($scannedParams);
+        }
+
+        // Collect arguments
+        $collectedArguments = Kernel\Utils::collectArguments($this, $scannedParams);
+        if (!is_array($collectedArguments)) {
+            return $collectedArguments;
+        }
+        if (count($collectedArguments) > 0) {
+            $arguments = array_merge($arguments, $collectedArguments);
         }
 
         // Read data from request body
         $this->getRequest()->readDataFromBody();
 
-        // Collect arguments
-        foreach ($params as $param) {
-            $name = Kernel\Utils::argumentName($param->getName());
-            if ($name === '_') {
-                $thisArgs = array();
-                foreach ($_GET as $k => $v) {
-                    if (substr($k, 0, 1) === '_' && $k != '_suppress_status_code') {
-                        $thisArgs[$k] = $v;
-                    }
-                }
-                $arguments[] = $thisArgs;
-            } else {
-                if (!$param->isOptional() && !isset($_GET[$name]) && is_null($this->getRequest()->getData($name))) {
-                    return $this->getResponse()->sendBadRequest('MissingRequiredArgumentException', "Argument '$name' is missing.");
-                }
-                $arguments[] = $_GET[$name] ?? ($this->getRequest()->getData($name) ?? $param->getDefaultValue());
-            }
-        }
-
+        // Check Access
         if ($this->checkAccessFn) {
-            $args = array($this->getClient()->getUrl(), $route, $arguments);
-            try {
-                call_user_func_array($this->checkAccessFn, $args);
-            } catch (Exception $e) {
-                $this->getResponse()->sendException($e);
-            }
+            $this->fireCheckAccessFn($arguments);
         }
 
-        // fire method
+        // Fire method
         $object = $this->controller;
         return $this->fireMethod($callableMethod, $object, $arguments);
     }
@@ -555,31 +509,68 @@ class Server
     }
 
     /**
+     * @return false|string
      * @throws Exception
      */
-    public function fireMethod($pMethod, $pController, $pArguments): string
+    public function fireParentController(string $apiBaseUri)
+    {
+        if (!$this->getParentController()) {
+            if ($this->getRouter()->getFallbackMethod()) {
+                $m = $this->getRouter()->getFallbackMethod();
+                return $this->getResponse()->send($this->controller->$m());
+            } else {
+                $reason = "There is no route for '$apiBaseUri'.";
+                return $this->getResponse()->sendBadRequest('RouteNotFoundException', $reason);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param array $arguments
+     * @throws Exception
+     */
+    public function fireCheckAccessFn(array $arguments): void
+    {
+        try {
+            $fireArguments = array($this->getClient()->getUrl(), $arguments);
+            call_user_func_array($this->checkAccessFn, $fireArguments);
+        } catch (Exception $e) {
+            $this->getResponse()->sendException($e);
+        }
+    }
+
+    /**
+     * @param string|callable $pMethod
+     * @param string|object $pController
+     * @param array $pArguments
+     * @return false|string
+     * @throws Exception
+     */
+    public function fireMethod($pMethod, $pController, array $pArguments)
     {
         $callable = false;
 
         if ($pController && is_string($pMethod)) {
             if (!method_exists($pController, $pMethod)) {
-                return $this->getResponse()->sendError('MethodNotFoundException', sprintf('Method %s in class %s not found.', $pMethod, get_class($pController)));
-            } else {
-                $callable = array($pController, $pMethod);
+                $reason = sprintf('Method %s in class %s not found.', $pMethod, get_class($pController));
+                return $this->getResponse()->sendError('MethodNotFoundException', $reason);
             }
+            $callable = array($pController, $pMethod);
         } elseif (is_callable($pMethod)) {
             $callable = $pMethod;
         }
 
-        if ($callable) {
-            try {
-                return $this->getResponse()->send(call_user_func_array($callable, $pArguments));
-            } catch (TypeError | InvalidArgumentException | Exception $e) {
-                return $this->getResponse()->sendException($e);
-            }
+        if (!$callable) {
+            return false;
         }
 
-        return "";
+        try {
+            return $this->getResponse()->send(call_user_func_array($callable, $pArguments));
+        } catch (TypeError | InvalidArgumentException | Exception $e) {
+            return $this->getResponse()->sendException($e);
+        }
     }
 
     /**

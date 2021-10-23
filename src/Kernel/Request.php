@@ -2,13 +2,14 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail\Kernel;
 
 use Exception;
 
-class Request
+final class Request
 {
     /**
      * The data fetch from request body.
@@ -31,7 +32,7 @@ class Request
      *
      * @throws Exception
      */
-    public function readDataFromBody()
+    public function readDataFromBody(): void
     {
         $rawContentType = $_SERVER["CONTENT_TYPE"] ?? "application/x-www-form-urlencoded";
         $rawContentTypeArray = explode(";", $rawContentType);

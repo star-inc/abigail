@@ -9,7 +9,7 @@ use Abigail\Server;
 use ReflectionException;
 use ReflectionMethod;
 
-class Router
+final class Router
 {
     private Server $server;
 

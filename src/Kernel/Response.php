@@ -2,6 +2,7 @@
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
 declare(strict_types=1);
 
 namespace Abigail\Kernel;
@@ -9,7 +10,7 @@ namespace Abigail\Kernel;
 use Abigail\Server;
 use Exception;
 
-class Response
+final class Response
 {
     private Server $server;
 
@@ -162,12 +163,12 @@ class Response
     }
 
     /**
-     * Sends data to the client with 200 http code.
+     * Send data to the client with 200 http code.
      *
      * @param $pData
-     * @return mixed
+     * @return string
      */
-    public function send($pData)
+    public function send($pData): string
     {
         if ($this->successResponseWrapper) {
             $pData = call_user_func_array($this->successResponseWrapper, [$pData]);
@@ -176,7 +177,7 @@ class Response
     }
 
     /**
-     * Sends a 'Bad Request' response to the client.
+     * Send a 'Bad Request' response to the client.
      *
      * @param $pCode
      * @param $pMessage
@@ -196,7 +197,7 @@ class Response
     }
 
     /**
-     * Sends a 'Internal Server Error' response to the client.
+     * Send a 'Internal Server Error' response to the client.
      * @param $pCode
      * @param $pMessage
      * @return string
@@ -215,12 +216,12 @@ class Response
     }
 
     /**
-     * Sends a exception response to the client.
+     * Send an exception response to the client.
      * @param $pException
-     * @return mixed
+     * @return string
      * @throws Exception
      */
-    public function sendException($pException)
+    public function sendException($pException): string
     {
         if ($this->sendExceptionFn) {
             call_user_func_array($this->sendExceptionFn, array($pException));
