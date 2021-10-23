@@ -136,11 +136,6 @@ class Server
         $this->setTriggerUrl($pTriggerUrl);
     }
 
-    public function __call($name, $arguments)
-    {
-        return $this->getRouter()->$name(...$arguments);
-    }
-
     /**
      * Get the current client.
      *
@@ -215,6 +210,14 @@ class Server
     }
 
     /**
+     * @return Router
+     */
+    public function getRouter(): Router
+    {
+        return $this->router;
+    }
+
+    /**
      * @return callable|null
      */
     public function getControllerFactory(): ?callable
@@ -232,6 +235,14 @@ class Server
         $this->controllerFactory = $controllerFactory;
 
         return $this;
+    }
+
+    /**
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        return $this->response;
     }
 
     /**
@@ -292,6 +303,16 @@ class Server
     {
         $clazz = get_called_class();
         return new $clazz($pTriggerUrl, $pControllerClass);
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        return $this->getRouter()->$name(...$arguments) ?? $this->getResponse()->$name(...$arguments);
     }
 
     /**
@@ -380,46 +401,6 @@ class Server
         $this->getClient()->setMethod($pMethod);
 
         return $this->run();
-    }
-
-    /**
-     * @return Router
-     */
-    public function getRouter(): Router
-    {
-        return $this->router;
-    }
-
-    /**
-     * @return Request
-     */
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    /**
-     * @return Response
-     */
-    public function getResponse(): Response
-    {
-        return $this->response;
-    }
-
-    /**
-     * @return object
-     */
-    public function getController(): object
-    {
-        return $this->controller;
-    }
-
-    /**
-     * @return array
-     */
-    public function getControllers(): array
-    {
-        return $this->controllers;
     }
 
     /**
@@ -530,10 +511,10 @@ class Server
                 }
                 $arguments[] = $thisArgs;
             } else {
-                if (!$param->isOptional() && !isset($_GET[$name]) && !isset($this->body_data[$name])) {
+                if (!$param->isOptional() && !isset($_GET[$name]) && is_null($this->getRequest()->getData($name))) {
                     return $this->getResponse()->sendBadRequest('MissingRequiredArgumentException', "Argument '$name' is missing.");
                 }
-                $arguments[] = $_GET[$name] ?? ($this->body_data[$name] ?? $param->getDefaultValue());
+                $arguments[] = $_GET[$name] ?? ($this->getRequest()->getData($name) ?? $param->getDefaultValue());
             }
         }
 
@@ -551,6 +532,14 @@ class Server
         // fire method
         $object = $this->controller;
         return $this->fireMethod($callableMethod, $object, $arguments);
+    }
+
+    /**
+     * @return Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
     }
 
     /**
@@ -578,5 +567,21 @@ class Server
             }
         }
         return "";
+    }
+
+    /**
+     * @return object
+     */
+    public function getController(): object
+    {
+        return $this->controller;
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllers(): array
+    {
+        return $this->controllers;
     }
 }

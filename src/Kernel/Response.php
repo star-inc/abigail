@@ -43,6 +43,12 @@ class Response
     protected $successResponseWrapper;
 
     /**
+     * List of possible methods.
+     * @var array
+     */
+    public const METHODS = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
+
+    /**
      * @var array|string[]
      */
     public const STATUS_CODES = array(

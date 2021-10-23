@@ -16,13 +16,16 @@ class Request
      *
      * @var array
      */
-    protected array $body_data = array();
+    protected array $bodyData = array();
 
     /**
-     * List of possible methods.
-     * @var array
+     * @param string $name
+     * @return string|null
      */
-    public array $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
+    public function getData(string $name): ?string
+    {
+        return $this->bodyData[$name] ?? null;
+    }
 
     /**
      * Read data from request body.
@@ -37,13 +40,13 @@ class Request
             $raw_content = file_get_contents("php://input");
             switch ($raw_content_type_array[0]) {
                 case "application/json" :
-                    $this->body_data = json_decode($raw_content, true) ?? [];
+                    $this->bodyData = json_decode($raw_content, true) ?? [];
                     break;
                 case "application/x-www-form-urlencoded" :
-                    $this->body_data = self::form_decode($raw_content) ?? [];
+                    $this->bodyData = self::form_decode($raw_content) ?? [];
                     break;
                 default:
-                    $this->body_data = [];
+                    $this->bodyData = [];
             }
         } else {
             throw new Exception("No the header content-type configured.");

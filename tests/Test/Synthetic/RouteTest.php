@@ -5,6 +5,7 @@
 
 namespace Test\Synthetic;
 
+use Abigail\Kernel\Response;
 use Abigail\Server;
 use PHPUnit\Framework\TestCase;
 
@@ -41,14 +42,12 @@ class RouteTest extends TestCase
                 return 'allTest';
             });
 
-        foreach ($abigail->getClient()->methods as $method) {
+        foreach (Response::METHODS as $method) {
             $response = $abigail->simulateCall('/test', $method);
             $this->assertEquals(["status" => 200, "data" => "{$method}Test"], json_decode($response, true));
 
             $response = $abigail->simulateCall('/all-test', $method);
             $this->assertEquals(["status" => 200, "data" => "allTest"], json_decode($response, true));
         }
-
     }
-
 }
