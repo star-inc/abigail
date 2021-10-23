@@ -32,10 +32,16 @@ final class Inspector
 
         if (!$pOnlyRoutes) {
             $definition['parameters'] = array(
-                '_method' => array('description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
-                    'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH'),
-                '_suppress_status_code' => array('description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0'),
-                '_format' => array('description' => 'Format of generated data. Can be added as suffix .json .xml', 'type' => 'string', 'values' => 'json, xml'),
+                '_method' => array(
+                    'description' => 'Can be used as HTTP METHOD if the client does not support HTTP methods.', 'type' => 'string',
+                    'values' => 'GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH'
+                ),
+                '_suppress_status_code' => array(
+                    'description' => 'Suppress the HTTP status code.', 'type' => 'boolean', 'values' => '1, 0'
+                ),
+                '_format' => array(
+                    'description' => 'Format of generated data. Can be added as suffix .json .xml', 'type' => 'string', 'values' => 'json, xml'
+                ),
             );
         }
 
@@ -151,6 +157,99 @@ final class Inspector
         return $pName;
     }
 
+    public static function scanPhpDoc(array $lines): string
+    {
+        $phpDoc = '';
+        $blockStarted = false;
+        while ($line = array_pop($lines)) {
+            if ($blockStarted) {
+                $phpDoc = $line . $phpDoc;
+                //if start comment block: /*
+                if (preg_match('/\s*\t*\/\*/', $line)) {
+                    break;
+                }
+                continue;
+            } else {
+                //we are not in a comment block.
+                //if class def, array def or close broken from fn comes above
+                //then we don't have phpdoc
+                if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)) {
+                    break;
+                }
+            }
+
+            $trimmed = trim($line);
+            if ($trimmed === '') {
+                continue;
+            }
+
+            //if end comment block: */
+            if (preg_match('/\*\//', $line)) {
+                $phpDoc = $line . $phpDoc;
+                $blockStarted = true;
+                //one line php doc?
+                if (preg_match('/\s*\t*\/\*/', $line)) {
+                    break;
+                }
+            }
+        }
+        return $phpDoc;
+    }
+
+    public static function fillPhpDoc(array $phpDoc, array $refParams, ?array $pRegMatches): array
+    {
+        $params = array();
+        $fillPhpDocParam = !isset($phpDoc['param']);
+        foreach ($refParams as $param) {
+            $params[$param->getName()] = $param;
+            if ($fillPhpDocParam) {
+                $phpDoc['param'][] = array(
+                    'name' => $param->getName(),
+                    'type' => $param->isArray() ? 'array' : 'mixed'
+                );
+            }
+        }
+        $parameters = array();
+        if (isset($phpDoc['param'])) {
+            if (is_array($phpDoc['param']) && is_string(key($phpDoc['param']))) {
+                $phpDoc['param'] = array($phpDoc['param']);
+            }
+            $c = 0;
+            foreach ($phpDoc['param'] as $phpDocParam) {
+                $param = $params[$phpDocParam['name']];
+                if (!$param) {
+                    continue;
+                }
+                $parameter = array(
+                    'type' => $phpDocParam['type']
+                );
+                if ($pRegMatches && is_array($pRegMatches) && $pRegMatches[$c]) {
+                    $parameter['fromRegex'] = '$' . ($c + 1);
+                }
+                $parameter['required'] = !$param->isOptional();
+                if ($param->isDefaultValueAvailable()) {
+                    $parameter['default'] = str_replace(array("\n", ' '), '', var_export($param->getDefaultValue(), true));
+                }
+                $parameters[self::argumentName($phpDocParam['name'])] = $parameter;
+                $c++;
+            }
+        }
+        if (!isset($phpDoc['return'])) {
+            $phpDoc['return'] = array('type' => 'mixed');
+        }
+        $result = array(
+            'parameters' => $parameters,
+            'return' => $phpDoc['return']
+        );
+        if (isset($phpDoc['description'])) {
+            $result['description'] = $phpDoc['description'];
+        }
+        if (isset($phpDoc['url'])) {
+            $result['url'] = $phpDoc['url'];
+        }
+        return $result;
+    }
+
     /**
      * Parse phpDoc string and returns an array.
      *
@@ -232,126 +331,19 @@ final class Inspector
      *
      * @param ReflectionFunctionAbstract $pMethod
      * @param array|null $pRegMatches
-     * @return bool|array
+     * @return array|false
      */
     public static function getMethodMetaData(ReflectionFunctionAbstract $pMethod, array $pRegMatches = null)
     {
         $file = $pMethod->getFileName();
         $startLine = $pMethod->getStartLine();
-
-        $fh = fopen($file, 'r');
-        if ($fh === false) {
+        $lines = File::readLines($file, $startLine);
+        if ($lines === false) {
             return false;
         }
-
-        $lineNr = 1;
-        $lines = array();
-        while (($buffer = fgets($fh)) !== false) {
-            if ($lineNr === $startLine) {
-                break;
-            }
-            $lines[$lineNr] = $buffer;
-            $lineNr++;
-        }
-        fclose($fh);
-
-        $phpDoc = '';
-        $blockStarted = false;
-        while ($line = array_pop($lines)) {
-            if ($blockStarted) {
-                $phpDoc = $line . $phpDoc;
-                //if start comment block: /*
-                if (preg_match('/\s*\t*\/\*/', $line)) {
-                    break;
-                }
-                continue;
-            } else {
-                //we are not in a comment block.
-                //if class def, array def or close broken from fn comes above
-                //then we don't have phpdoc
-                if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)) {
-                    break;
-                }
-            }
-
-            $trimmed = trim($line);
-            if ($trimmed === '') {
-                continue;
-            }
-
-            //if end comment block: */
-            if (preg_match('/\*\//', $line)) {
-                $phpDoc = $line . $phpDoc;
-                $blockStarted = true;
-                //one line php doc?
-                if (preg_match('/\s*\t*\/\*/', $line)) {
-                    break;
-                }
-            }
-        }
-
-        $phpDoc = self::parsePhpDoc($phpDoc);
-
+        $phpDocText = self::scanPhpDoc($lines);
+        $phpDoc = self::parsePhpDoc($phpDocText);
         $refParams = $pMethod->getParameters();
-        $params = array();
-
-        $fillPhpDocParam = !isset($phpDoc['param']);
-
-        foreach ($refParams as $param) {
-            $params[$param->getName()] = $param;
-            if ($fillPhpDocParam) {
-                $phpDoc['param'][] = array(
-                    'name' => $param->getName(),
-                    'type' => $param->isArray() ? 'array' : 'mixed'
-                );
-            }
-        }
-
-        $parameters = array();
-
-        if (isset($phpDoc['param'])) {
-            if (is_array($phpDoc['param']) && is_string(key($phpDoc['param']))) {
-                $phpDoc['param'] = array($phpDoc['param']);
-            }
-
-            $c = 0;
-            foreach ($phpDoc['param'] as $phpDocParam) {
-                $param = $params[$phpDocParam['name']];
-                if (!$param) {
-                    continue;
-                }
-                $parameter = array(
-                    'type' => $phpDocParam['type']
-                );
-                if ($pRegMatches && is_array($pRegMatches) && $pRegMatches[$c]) {
-                    $parameter['fromRegex'] = '$' . ($c + 1);
-                }
-                $parameter['required'] = !$param->isOptional();
-                if ($param->isDefaultValueAvailable()) {
-                    $parameter['default'] = str_replace(array("\n", ' '), '', var_export($param->getDefaultValue(), true));
-                }
-                $parameters[self::argumentName($phpDocParam['name'])] = $parameter;
-                $c++;
-            }
-        }
-
-        if (!isset($phpDoc['return'])) {
-            $phpDoc['return'] = array('type' => 'mixed');
-        }
-
-        $result = array(
-            'parameters' => $parameters,
-            'return' => $phpDoc['return']
-        );
-
-        if (isset($phpDoc['description'])) {
-            $result['description'] = $phpDoc['description'];
-        }
-
-        if (isset($phpDoc['url'])) {
-            $result['url'] = $phpDoc['url'];
-        }
-
-        return $result;
+        return self::fillPhpDoc($phpDoc, $refParams, $pRegMatches);
     }
 }

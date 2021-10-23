@@ -555,7 +555,8 @@ class Server
 
         if ($pController && is_string($pMethod)) {
             if (!method_exists($pController, $pMethod)) {
-                $reason = sprintf('Method %s in class %s not found.', $pMethod, get_class($pController));
+                $callableMethodClassName = is_string($pController) ? $pController : get_class($pController);
+                $reason = sprintf('Method %s in class %s not found.', $pMethod, $callableMethodClassName);
                 return $this->getResponse()->sendError('MethodNotFoundException', $reason);
             }
             $callable = array($pController, $pMethod);
