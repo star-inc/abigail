@@ -1,4 +1,5 @@
 <?php
+
 // Abigail - fork from marcj/php-rest-service
 // License: MIT
 // (c) 2021 Star Inc. (https://starinc.xyz)
@@ -51,51 +52,6 @@ class Client
      */
     private string $method = "";
 
-
-    private static array $statusCodes = array(
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Found', // 1.1
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        307 => 'Temporary Redirect',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Request Entity Too Large',
-        414 => 'Request-URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Requested Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-        509 => 'Bandwidth Limit Exceeded'
-    );
-
     /**
      * @param Server $pServerController
      */
@@ -119,11 +75,11 @@ class Client
     public function sendResponse(string $pHttpCode, $pMessage)
     {
         $suppressStatusCode = $_GET['_suppress_status_code'] ?? false;
-        if ($this->controller->getHttpStatusCodes() &&
+        if ($this->controller->getResponse()->getHttpStatusCodes() &&
             !$suppressStatusCode &&
             php_sapi_name() !== 'cli'
         ) {
-            $status = self::$statusCodes[intval($pHttpCode)];
+            $status = Kernel\Response::STATUS_CODES[intval($pHttpCode)];
             header('HTTP/1.0 ' . ($status ? $pHttpCode . ' ' . $status : $pHttpCode), true, intval($pHttpCode));
         } elseif (php_sapi_name() !== 'cli') {
             header('HTTP/1.0 200 OK');
@@ -178,7 +134,7 @@ class Client
 
         if (isset($_GET['_method'])) {
             $method = $_GET['_method'];
-        } else if (isset($_POST['_method'])) {
+        } elseif (isset($_POST['_method'])) {
             $method = $_POST['_method'];
         }
 
@@ -189,7 +145,6 @@ class Client
         }
 
         return $method;
-
     }
 
     /**
