@@ -60,7 +60,7 @@ class Client
         206 => 'Partial Content',
         300 => 'Multiple Choices',
         301 => 'Moved Permanently',
-        302 => 'Found',  // 1.1
+        302 => 'Found', // 1.1
         303 => 'See Other',
         304 => 'Not Modified',
         305 => 'Use Proxy',
@@ -98,8 +98,9 @@ class Client
     public function __construct(Server $pServerController)
     {
         $this->controller = $pServerController;
-        if (isset($_SERVER['PATH_INFO']))
+        if (isset($_SERVER['PATH_INFO'])) {
             $this->setUrl($_SERVER['PATH_INFO']);
+        }
 
         $this->setupFormats();
     }
@@ -183,18 +184,21 @@ class Client
         }
 
         $method = @$_SERVER['REQUEST_METHOD'];
-        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
+        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        }
 
-        if (isset($_GET['_method']))
+        if (isset($_GET['_method'])) {
             $method = $_GET['_method'];
-        else if (isset($_POST['_method']))
+        } else if (isset($_POST['_method'])) {
             $method = $_POST['_method'];
+        }
 
         $method = strtolower($method);
 
-        if (!in_array($method, $this->methods))
+        if (!in_array($method, $this->methods)) {
             $method = 'get';
+        }
 
         return $method;
 
@@ -221,8 +225,9 @@ class Client
      */
     public function setContentLength($pMessage)
     {
-        if (php_sapi_name() !== 'cli')
+        if (php_sapi_name() !== 'cli') {
             header('Content-Length: ' . strlen($pMessage));
+        }
     }
 
     /**
@@ -233,8 +238,9 @@ class Client
      */
     public function asJSON($pMessage): string
     {
-        if (php_sapi_name() !== 'cli')
+        if (php_sapi_name() !== 'cli') {
             header('Content-Type: application/json; charset=utf-8');
+        }
 
         $result = $this->jsonFormat($pMessage);
         $this->setContentLength($result);
@@ -253,7 +259,9 @@ class Client
      */
     public function jsonFormat(array $json): string
     {
-        if (!is_string($json)) $json = json_encode($json);
+        if (!is_string($json)) {
+            $json = json_encode($json);
+        }
 
         $result = '';
         $pos = 0;
@@ -300,10 +308,11 @@ class Client
                 }
             }
 
-            if ($char == '\\' && !$inEscapeMode)
+            if ($char == '\\' && !$inEscapeMode) {
                 $inEscapeMode = true;
-            else
+            } else {
                 $inEscapeMode = false;
+            }
         }
 
         return $result;

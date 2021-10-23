@@ -166,23 +166,29 @@ class Server
             $this->parentController = $pParentController;
             $this->setClient($pParentController->getClient());
 
-            if ($pParentController->getCheckAccess())
+            if ($pParentController->getCheckAccess()) {
                 $this->setCheckAccess($pParentController->getCheckAccess());
+            }
 
-            if ($pParentController->getExceptionHandler())
+            if ($pParentController->getExceptionHandler()) {
                 $this->setExceptionHandler($pParentController->getExceptionHandler());
+            }
 
-            if ($pParentController->getDebugMode())
+            if ($pParentController->getDebugMode()) {
                 $this->setDebugMode($pParentController->getDebugMode());
+            }
 
-            if ($pParentController->getDescribeRoutes())
+            if ($pParentController->getDescribeRoutes()) {
                 $this->setDescribeRoutes($pParentController->getDescribeRoutes());
+            }
 
-            if ($pParentController->getControllerFactory())
+            if ($pParentController->getControllerFactory()) {
                 $this->setControllerFactory($pParentController->getControllerFactory());
+            }
 
-            if ($pParentController->getSuccessResponseWrapper())
+            if ($pParentController->getSuccessResponseWrapper()) {
                 $this->setSuccessResponseWrapper($pParentController->getSuccessResponseWrapper());
+            }
 
             $this->setHttpStatusCodes($pParentController->getHttpStatusCodes());
 
@@ -508,9 +514,13 @@ class Server
      */
     public function sendBadRequest($pCode, $pMessage): string
     {
-        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
+        if (is_object($pMessage) && $pMessage->xdebug_message) {
+            $pMessage = $pMessage->xdebug_message;
+        }
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) throw new Exception('client_not_found_in_ServerController');
+        if (!$this->getClient()) {
+            throw new Exception('client_not_found_in_ServerController');
+        }
         return $this->getClient()->sendResponse('400', $msg);
     }
 
@@ -523,9 +533,13 @@ class Server
      */
     public function sendError($pCode, $pMessage): string
     {
-        if (is_object($pMessage) && $pMessage->xdebug_message) $pMessage = $pMessage->xdebug_message;
+        if (is_object($pMessage) && $pMessage->xdebug_message) {
+            $pMessage = $pMessage->xdebug_message;
+        }
         $msg = array('error' => $pCode, 'message' => $pMessage);
-        if (!$this->getClient()) throw new Exception('client_not_found_in_ServerController');
+        if (!$this->getClient()) {
+            throw new Exception('client_not_found_in_ServerController');
+        }
         return $this->getClient()->sendResponse('500', $msg);
     }
 
@@ -542,7 +556,9 @@ class Server
         }
 
         $message = $pException->getMessage();
-        if (is_object($message) && $message->xdebug_message) $message = $message->xdebug_message;
+        if (is_object($message) && $message->xdebug_message) {
+            $message = $message->xdebug_message;
+        }
 
         $msg = array('error' => get_class($pException), 'message' => $message);
 
@@ -552,7 +568,9 @@ class Server
             $msg['trace'] = $pException->getTraceAsString();
         }
 
-        if (!$this->getClient()) throw new Exception('Client not found in ServerController');
+        if (!$this->getClient()) {
+            throw new Exception('Client not found in ServerController');
+        }
         return $this->getClient()->sendResponse('500', $msg);
     }
 
@@ -742,7 +760,9 @@ class Server
         $this->normalizeUrl($pTriggerUrl);
 
         $base = $this->triggerUrl;
-        if ($base == '/') $base = '';
+        if ($base == '/') {
+            $base = '';
+        }
 
         $controller = new Server($base . $pTriggerUrl, $pControllerClass, $this);
 
@@ -758,9 +778,15 @@ class Server
      */
     public function normalizeUrl(string &$pUrl)
     {
-        if ('/' === $pUrl) return;
-        if (substr($pUrl, -1) == '/') $pUrl = substr($pUrl, 0, -1);
-        if (substr($pUrl, 0, 1) != '/') $pUrl = '/' . $pUrl;
+        if ('/' === $pUrl) {
+            return;
+        }
+        if (substr($pUrl, -1) == '/') {
+            $pUrl = substr($pUrl, 0, -1);
+        }
+        if (substr($pUrl, 0, 1) != '/') {
+            $pUrl = '/' . $pUrl;
+        }
     }
 
     /**
@@ -794,11 +820,15 @@ class Server
      */
     public function collectRoutes(): Server
     {
-        if ($this->collectRoutesExclude == '*') return $this;
+        if ($this->collectRoutesExclude == '*') {
+            return $this;
+        }
 
         $methods = get_class_methods($this->controller);
         foreach ($methods as $method) {
-            if (in_array($method, $this->collectRoutesExclude)) continue;
+            if (in_array($method, $this->collectRoutesExclude)) {
+                continue;
+            }
 
             $info = explode('/', preg_replace('/([a-z]*)(([A-Z]+)([a-zA-Z0-9_]*))/', '$1/$2', $method));
             $uri = $this->camelCase2Dashes((empty($info[1]) ? '' : $info[1]));
@@ -809,7 +839,9 @@ class Server
             }
 
             $reflectionMethod = new ReflectionMethod($this->controller, $method);
-            if ($reflectionMethod->isPrivate()) continue;
+            if ($reflectionMethod->isPrivate()) {
+                continue;
+            }
 
             $phpDocs = $this->getMethodMetaData($reflectionMethod);
             if (isset($phpDocs['url'])) {
@@ -871,12 +903,16 @@ class Server
         $requestedUrl = $this->getClient()->getUrl();
         $this->normalizeUrl($requestedUrl);
         //check if its in our area
-        if (strpos($requestedUrl, $this->triggerUrl) !== 0) return "";
+        if (strpos($requestedUrl, $this->triggerUrl) !== 0) {
+            return "";
+        }
 
         $endPos = $this->triggerUrl === '/' ? 1 : strlen($this->triggerUrl) + 1;
         $uri = substr($requestedUrl, $endPos);
 
-        if (!$uri) $uri = '';
+        if (!$uri) {
+            $uri = '';
+        }
 
         $route = false;
         $arguments = array();
@@ -903,8 +939,9 @@ class Server
             }
         }
 
-        if ($method == '_all_')
+        if ($method == '_all_') {
             $arguments[] = $method;
+        }
 
         if (is_array($regexArguments)) {
             $arguments = array_merge($arguments, $regexArguments);
@@ -948,8 +985,9 @@ class Server
             if ($name == '_') {
                 $thisArgs = array();
                 foreach ($_GET as $k => $v) {
-                    if (substr($k, 0, 1) == '_' && $k != '_suppress_status_code')
+                    if (substr($k, 0, 1) == '_' && $k != '_suppress_status_code') {
                         $thisArgs[$k] = $v;
+                    }
                 }
 
                 $arguments[] = $thisArgs;
@@ -1078,12 +1116,16 @@ class Server
         $startLine = $pMethod->getStartLine();
 
         $fh = fopen($file, 'r');
-        if (!$fh) return false;
+        if (!$fh) {
+            return false;
+        }
 
         $lineNr = 1;
         $lines = array();
         while (($buffer = fgets($fh)) !== false) {
-            if ($lineNr == $startLine) break;
+            if ($lineNr == $startLine) {
+                break;
+            }
             $lines[$lineNr] = $buffer;
             $lineNr++;
         }
@@ -1111,7 +1153,9 @@ class Server
             }
 
             $trimmed = trim($line);
-            if ($trimmed == '') continue;
+            if ($trimmed == '') {
+                continue;
+            }
 
             //if end comment block: */
             if (preg_match('/\*\//', $line)) {
@@ -1144,14 +1188,17 @@ class Server
         $parameters = array();
 
         if (isset($phpDoc['param'])) {
-            if (is_array($phpDoc['param']) && is_string(key($phpDoc['param'])))
+            if (is_array($phpDoc['param']) && is_string(key($phpDoc['param']))) {
                 $phpDoc['param'] = array($phpDoc['param']);
+            }
 
             $c = 0;
             foreach ($phpDoc['param'] as $phpDocParam) {
 
                 $param = $params[$phpDocParam['name']];
-                if (!$param) continue;
+                if (!$param) {
+                    continue;
+                }
                 $parameter = array(
                     'type' => $phpDocParam['type']
                 );
@@ -1170,19 +1217,22 @@ class Server
             }
         }
 
-        if (!isset($phpDoc['return']))
+        if (!isset($phpDoc['return'])) {
             $phpDoc['return'] = array('type' => 'mixed');
+        }
 
         $result = array(
             'parameters' => $parameters,
             'return' => $phpDoc['return']
         );
 
-        if (isset($phpDoc['description']))
+        if (isset($phpDoc['description'])) {
             $result['description'] = $phpDoc['description'];
+        }
 
-        if (isset($phpDoc['url']))
+        if (isset($phpDoc['url'])) {
             $result['url'] = $phpDoc['url'];
+        }
 
         return $result;
     }
@@ -1197,7 +1247,9 @@ class Server
     {
         preg_match('#^/\*\*(.*)\*/#s', trim($pString), $comment);
 
-        if (0 === count($comment)) return array();
+        if (0 === count($comment)) {
+            return array();
+        }
 
         $comment = trim($comment[1]);
 
@@ -1213,10 +1265,11 @@ class Server
 
             if (substr($line, 0, 1) == '@') {
 
-                if ($currentTag)
+                if ($currentTag) {
                     $tags[$currentTag][] = $currentData;
-                else
+                } else {
                     $tags['description'] = $currentData;
+                }
 
                 $currentData = '';
                 preg_match('/@([a-zA-Z_]*)/', $line, $match);
@@ -1226,10 +1279,11 @@ class Server
             $currentData = trim($currentData . ' ' . $line);
 
         }
-        if ($currentTag)
+        if ($currentTag) {
             $tags[$currentTag][] = $currentData;
-        else
+        } else {
             $tags['description'] = $currentData;
+        }
 
         //parse tags
         $regex = array(
@@ -1238,7 +1292,9 @@ class Server
             'return' => array('/^@return\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*(.*)/', array('type', 'description')),
         );
         foreach ($tags as $tag => &$data) {
-            if ($tag == 'description') continue;
+            if ($tag == 'description') {
+                continue;
+            }
             foreach ($data as &$item) {
                 if (isset($regex[$tag])) {
                     preg_match($regex[$tag][0], $item, $match);
@@ -1251,8 +1307,9 @@ class Server
                     }
                 }
             }
-            if (count($data) == 1)
+            if (count($data) == 1) {
                 $data = $data[0];
+            }
         }
 
         return $tags;
@@ -1293,10 +1350,11 @@ class Server
                 if (preg_match('|^' . $routeUri . '$|', $pUri, $matches)) {
 
                     if (!isset($routeMethods[$pMethod])) {
-                        if (isset($routeMethods['_all_']))
+                        if (isset($routeMethods['_all_'])) {
                             $pMethod = '_all_';
-                        else
+                        } else {
                             continue;
+                        }
                     }
 
                     $arguments = [];
