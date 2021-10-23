@@ -1,4 +1,7 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
 
 namespace Test\Controller;
 

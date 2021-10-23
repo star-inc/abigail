@@ -1,4 +1,8 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
+declare(strict_types=1);
 
 namespace Abigail;
 
@@ -1304,9 +1308,7 @@ class Server
         } else {
             //maybe we have a regex uri
             foreach ($this->routes as $routeUri => $routeMethods) {
-
                 if (preg_match('|^' . $routeUri . '$|', $pUri, $matches)) {
-
                     if (!isset($routeMethods[$pMethod])) {
                         if (isset($routeMethods['_all_'])) {
                             $pMethod = '_all_';
@@ -1314,20 +1316,15 @@ class Server
                             continue;
                         }
                     }
-
                     $arguments = [];
                     array_shift($matches);
                     foreach ($matches as $match) {
                         $arguments[] = $match;
                     }
-
                     return array($routeMethods[$pMethod], $arguments, $pMethod, $routeUri);
                 }
-
             }
         }
-
         return false;
     }
-
 }

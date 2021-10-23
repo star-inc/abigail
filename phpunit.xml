@@ -1,3 +1,8 @@
+<!--
+  ~ Abigail
+  ~ License: MIT
+  ~ (c) 2021 Star Inc. (https://starinc.xyz)
+  -->
 <phpunit bootstrap="tests/bootstrap.php"
          colors="true"
          convertNoticesToExceptions="false"

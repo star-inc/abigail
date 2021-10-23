@@ -1,4 +1,8 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
+declare(strict_types=1);
 
 namespace Abigail;
 
@@ -120,7 +124,7 @@ class Client
             php_sapi_name() !== 'cli'
         ) {
             $status = self::$statusCodes[intval($pHttpCode)];
-            header('HTTP/1.0 ' . ($status ? $pHttpCode . ' ' . $status : $pHttpCode), true, $pHttpCode);
+            header('HTTP/1.0 ' . ($status ? $pHttpCode . ' ' . $status : $pHttpCode), true, intval($pHttpCode));
         } elseif (php_sapi_name() !== 'cli') {
             header('HTTP/1.0 200 OK');
         }

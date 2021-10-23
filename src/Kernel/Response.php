@@ -4,9 +4,9 @@
 // (c) 2021 Star Inc. (https://starinc.xyz)
 declare(strict_types=1);
 
-namespace Abigail\Encoder;
+namespace Abigail\Kernel;
 
-interface EncoderInterface
+class Response
 {
-    public static function export($pMessage): string;
+
 }
