@@ -25,16 +25,16 @@ class CollectTest extends TestCase
 
     public function testNonPhpDocMethod()
     {
-        $response = $this->abigail->simulateCall('/method-without-php-doc', 'get');
+        $response = $this->abigail->simulateCall('/method-without-php-doc');
         $this->assertEquals(["status" => 200, "data" => "hi"], json_decode($response, true));
     }
 
     public function testUrlAnnotation()
     {
-        $response = $this->abigail->simulateCall('/stats', 'get');
+        $response = $this->abigail->simulateCall('/stats');
         $this->assertEquals(["status" => 200, "data" => "Stats for 1"], json_decode($response, true));
 
-        $response = $this->abigail->simulateCall('/stats/23', 'get');
+        $response = $this->abigail->simulateCall('/stats/23');
         $this->assertEquals(["status" => 200, "data" => "Stats for 23"], json_decode($response, true));
     }
 
@@ -66,7 +66,7 @@ class CollectTest extends TestCase
 
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
-        $response = $this->abigail->simulateCall('/login?username=peter&password=pwd', 'get');
+        $response = $this->abigail->simulateCall('/login?username=peter&password=pwd');
 
         $this->assertEquals(
             [

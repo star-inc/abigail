@@ -138,7 +138,7 @@ class Admin {
     /**
     * @param string $username
     * @param string $password
-    * return boolean
+    * @return boolean
     */
     public function postLogin($username, $password){
         return $this->getContainer('auth')->doLogin($username, $password);

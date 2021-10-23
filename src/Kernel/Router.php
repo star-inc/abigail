@@ -201,7 +201,7 @@ class Router
      */
     public function addGetRoute(string $pUri, $pCb): Server
     {
-        $this->addRoute($pUri, $pCb, 'get');
+        $this->addRoute($pUri, $pCb);
 
         return $this->server;
     }

@@ -16,7 +16,7 @@ class BasicTest extends TestCase
         $abigail = Server::create('/', new MyRoutes)
             ->setClient('Abigail\\InternalClient')
             ->collectRoutes();
-        $response = $abigail->simulateCall('/test/test', 'get');
+        $response = $abigail->simulateCall('/test/test');
         $this->assertEquals(["status" => 200, "data" => "test"], json_decode($response, true));
     }
 }

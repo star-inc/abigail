@@ -21,7 +21,7 @@ use TypeError;
  * \Abigail\Server - A REST server class for RESTful APIs.
  * @method Server setDescribeRoutes(bool $pDescribeRoutes)
  * @method Server collectRoutes()
- * @method Server addRoute(string $pUri, $pCb, string $pHttpMethod)
+ * @method Server addRoute(string $pUri, $pCb, string $pHttpMethod = '_all_')
  * @method Server addGetRoute(string $pUri, $pCb)
  * @method Server addPostRoute(string $pUri, $pCb)
  * @method Server addPutRoute(string $pUri, $pCb)
@@ -29,9 +29,9 @@ use TypeError;
  * @method Server addHeadRoute(string $pUri, $pCb)
  * @method Server addOptionsRoute(string $pUri, $pCb)
  * @method Server addDeleteRoute(string $pUri, $pCb)
- * @method Server setHttpStatusCodes(string $pUri, $pCb)
- * @method Server setSuccessResponseWrapper(string $pUri, $pCb)
- * @method Server setExceptionHandler(string $pUri, $pCb)
+ * @method Server setHttpStatusCodes(bool $pWithStatusCode)
+ * @method Server setSuccessHandler(callable $pFn)
+ * @method Server setExceptionHandler(callable $pFn)
  */
 class Server
 {
@@ -136,7 +136,7 @@ class Server
                 $this->setControllerFactory($pParentController->getControllerFactory());
             }
             if ($pParentController->getResponse()->getSuccessResponseWrapper()) {
-                $this->getResponse()->setSuccessResponseWrapper($pParentController->getResponse()->getSuccessResponseWrapper());
+                $this->getResponse()->setSuccessHandler($pParentController->getResponse()->getSuccessResponseWrapper());
             }
             if ($pParentController->getResponse()->getExceptionHandler()) {
                 $this->getResponse()->setExceptionHandler($pParentController->getResponse()->getExceptionHandler());

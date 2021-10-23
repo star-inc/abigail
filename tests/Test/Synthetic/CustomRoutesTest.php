@@ -44,7 +44,7 @@ class CustomRoutesTest extends TestCase
 
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
-        $response = $abigail->simulateCall('/login?username=peter&password=pwd', 'get');
+        $response = $abigail->simulateCall('/login?username=peter&password=pwd');
 
         $this->assertEquals(
             [

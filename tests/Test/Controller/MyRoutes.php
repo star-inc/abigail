@@ -39,7 +39,7 @@ class MyRoutes
      * @url stats
      * @return string
      */
-    public function getStats($server = '1'): string
+    public function getStats(string $server = '1'): string
     {
         return sprintf('Stats for %s', $server);
     }

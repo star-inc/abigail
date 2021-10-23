@@ -133,7 +133,7 @@ class Response
      * @param callable $pFn
      * @return Server   $this
      */
-    public function setSuccessResponseWrapper(callable $pFn): Server
+    public function setSuccessHandler(callable $pFn): Server
     {
         $this->successResponseWrapper = $pFn;
         return $this->server;
