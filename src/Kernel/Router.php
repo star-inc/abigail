@@ -122,7 +122,7 @@ final class Router
             $phpDocs = Inspector::getMethodMetaData($reflectionMethod);
             if (isset($phpDocs['url'])) {
                 if (isset($phpDocs['url']['url'])) {
-                    //only one route
+                    // Only one route
                     $this->routes[$phpDocs['url']['url']][$httpMethod] = $method;
                 } else {
                     foreach ($phpDocs['url'] as $urlAnnotation) {
@@ -151,7 +151,7 @@ final class Router
         } elseif ($pMethod != '_all_' && isset($this->routes[$pUri]['_all_']) && $method = $this->routes[$pUri]['_all_']) {
             return array($method, array(), $pMethod, $pUri);
         } else {
-            //maybe we have a regex uri
+            // Maybe we have a regex uri
             foreach ($this->routes as $routeUri => $routeMethods) {
                 if (preg_match('|^' . $routeUri . '$|', $pUri, $matches)) {
                     if (!isset($routeMethods[$pMethod])) {

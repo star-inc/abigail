@@ -29,6 +29,7 @@ class Client
         'json' => '\\Abigail\\Encoder\\JSON',
         'xml' => '\\Abigail\\Encoder\\XML'
     );
+
     /**
      * Current URL.
      *

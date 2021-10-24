@@ -20,15 +20,15 @@ final class PhpDoc
         while ($line = array_pop($lines)) {
             if ($blockStarted) {
                 $phpDoc = $line . $phpDoc;
-                //if start comment block: /*
+                // If start comment block:
                 if (preg_match('/\s*\t*\/\*/', $line)) {
                     break;
                 }
                 continue;
             } else {
-                //we are not in a comment block.
-                //if class def, array def or close broken from fn comes above
-                //then we don't have phpdoc
+                // We are not in a comment block.
+                // If class def, array def or close broken from fn comes above,
+                // then we don't have phpdoc.
                 if (preg_match('/^\s*\t*[a-zA-Z_&\s]*(\$|{|})/', $line)) {
                     break;
                 }
@@ -39,11 +39,11 @@ final class PhpDoc
                 continue;
             }
 
-            //if end comment block: */
+            // If end comment block:
             if (preg_match('/\*\//', $line)) {
                 $phpDoc = $line . $phpDoc;
                 $blockStarted = true;
-                //one line php doc?
+                // One line php doc?
                 if (preg_match('/\s*\t*\/\*/', $line)) {
                     break;
                 }
@@ -158,7 +158,7 @@ final class PhpDoc
             $tags['description'] = $currentData;
         }
 
-        //parse tags
+        // Parse tags
         $regex = array(
             'param' => array('/^@param\s*\t*([a-zA-Z_\\\[\]]*)\s*\t*\$([a-zA-Z_]*)\s*\t*(.*)/', array('type', 'name', 'description')),
             'url' => array('/^@url\s*\t*(.+)/', array('url')),

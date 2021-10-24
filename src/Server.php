@@ -425,7 +425,7 @@ class Server
      */
     public function run()
     {
-        //check sub controller
+        // Check sub controller
         foreach ($this->controllers as $controller) {
             if ($result = $controller->run()) {
                 return $result;
