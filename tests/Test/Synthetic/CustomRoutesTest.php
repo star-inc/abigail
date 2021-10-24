@@ -1,15 +1,25 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
+declare(strict_types=1);
 
 namespace Test\Synthetic;
 
 use Abigail\Server;
+use Exception;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use Test\Controller\MyRoutes;
 
 class CustomRoutesTest extends TestCase
 {
 
-    public function testOwnController()
+    /**
+     * @throws ReflectionException
+     */
+    public function testOwnController(): void
     {
         $abigail = Server::create('/', new MyRoutes)
             ->setClient('Abigail\\InternalClient')
@@ -41,7 +51,7 @@ class CustomRoutesTest extends TestCase
 
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
-        $response = $abigail->simulateCall('/login?username=peter&password=pwd', 'get');
+        $response = $abigail->simulateCall('/login?username=peter&password=pwd');
 
         $this->assertEquals(
             [
@@ -53,7 +63,10 @@ class CustomRoutesTest extends TestCase
         );
     }
 
-    public function testOwnControllerWithDifferentPrefix()
+    /**
+     * @throws ReflectionException
+     */
+    public function testOwnControllerWithDifferentPrefix(): void
     {
         $abigail = Server::create('/v1', new MyRoutes)
             ->setClient('Abigail\\InternalClient')
@@ -80,7 +93,11 @@ class CustomRoutesTest extends TestCase
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
     }
 
-    public function testSubController()
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public function testSubController(): void
     {
         $abigail = Server::create('v1', new MyRoutes)
             ->setClient('Abigail\\InternalClient')
@@ -94,7 +111,11 @@ class CustomRoutesTest extends TestCase
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
     }
 
-    public function testSubControllerWithSlashRootParent()
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public function testSubControllerWithSlashRootParent(): void
     {
         $abigail = Server::create('/', new MyRoutes)
             ->setClient('Abigail\\InternalClient')

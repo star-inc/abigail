@@ -1,4 +1,9 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
+declare(strict_types=1);
 
 namespace Test\Controller;
 
@@ -27,7 +32,7 @@ class MyRoutes
      */
     public function postLogin(string $username, string $password): bool
     {
-        return $username == 'peter' && $password == 'pwd';
+        return $username === 'peter' && $password === 'pwd';
     }
 
     /**
@@ -36,7 +41,7 @@ class MyRoutes
      * @url stats
      * @return string
      */
-    public function getStats($server = '1'): string
+    public function getStats(string $server = '1'): string
     {
         return sprintf('Stats for %s', $server);
     }

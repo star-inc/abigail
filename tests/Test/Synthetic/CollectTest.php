@@ -1,9 +1,15 @@
 <?php
+// Abigail - fork from marcj/php-rest-service
+// License: MIT
+// (c) 2021 Star Inc. (https://starinc.xyz)
+// (c) MArc J. Schmidt (https://marcjschmidt.de)
+declare(strict_types=1);
 
 namespace Test\Synthetic;
 
 use Abigail\Server;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use Test\Controller\MyRoutes;
 
 class CollectTest extends TestCase
@@ -20,22 +26,31 @@ class CollectTest extends TestCase
             ->collectRoutes();
     }
 
-    public function testNonPhpDocMethod()
+    /**
+     * @throws ReflectionException
+     */
+    public function testNonPhpDocMethod(): void
     {
-        $response = $this->abigail->simulateCall('/method-without-php-doc', 'get');
+        $response = $this->abigail->simulateCall('/method-without-php-doc');
         $this->assertEquals(["status" => 200, "data" => "hi"], json_decode($response, true));
     }
 
-    public function testUrlAnnotation()
+    /**
+     * @throws ReflectionException
+     */
+    public function testUrlAnnotation(): void
     {
-        $response = $this->abigail->simulateCall('/stats', 'get');
+        $response = $this->abigail->simulateCall('/stats');
         $this->assertEquals(["status" => 200, "data" => "Stats for 1"], json_decode($response, true));
 
-        $response = $this->abigail->simulateCall('/stats/23', 'get');
+        $response = $this->abigail->simulateCall('/stats/23');
         $this->assertEquals(["status" => 200, "data" => "Stats for 23"], json_decode($response, true));
     }
 
-    public function testOwnController()
+    /**
+     * @throws ReflectionException
+     */
+    public function testOwnController(): void
     {
         $response = $this->abigail->simulateCall('/login', 'post');
 
@@ -63,7 +78,7 @@ class CollectTest extends TestCase
 
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
-        $response = $this->abigail->simulateCall('/login?username=peter&password=pwd', 'get');
+        $response = $this->abigail->simulateCall('/login?username=peter&password=pwd');
 
         $this->assertEquals(
             [
