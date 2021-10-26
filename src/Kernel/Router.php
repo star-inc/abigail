@@ -285,4 +285,17 @@ final class Router
 
         return $this->server;
     }
+
+    /**
+     * Removes a route.
+     *
+     * @param string $pUri
+     * @return Server
+     */
+    public function removeRoute(string $pUri): Server
+    {
+        unset($this->routes[$pUri]);
+
+        return $this->server;
+    }
 }

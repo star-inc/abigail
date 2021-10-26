@@ -9,10 +9,14 @@ namespace Test\Basic;
 
 use Abigail\Server;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use Test\Controller\MyRoutes;
 
 class BasicTest extends TestCase
 {
+    /**
+     * @throws ReflectionException
+     */
     public function testCustomUrl()
     {
         $abigail = Server::create('/', new MyRoutes)

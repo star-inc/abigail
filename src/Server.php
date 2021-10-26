@@ -10,6 +10,7 @@ namespace Abigail;
 use Abigail\Kernel\Request;
 use Abigail\Kernel\Response;
 use Abigail\Kernel\Router;
+use BadMethodCallException;
 use Exception;
 use InvalidArgumentException;
 use ReflectionException;
@@ -324,7 +325,13 @@ class Server
      */
     public function __call(string $name, array $arguments)
     {
-        return $this->getRouter()->$name(...$arguments) ?? $this->getResponse()->$name(...$arguments);
+        if (method_exists($this->getRouter(), $name)) {
+            return $this->getRouter()->$name(...$arguments);
+        } else if (method_exists($this->getResponse(), $name)) {
+            return $this->getResponse()->$name(...$arguments);
+        } else {
+            throw new BadMethodCallException();
+        }
     }
 
     /**
@@ -479,6 +486,9 @@ class Server
             array_shift($scannedParams);
         }
 
+        // Read data from request body
+        $this->getRequest()->readDataFromBody();
+
         // Collect arguments
         $collectedArguments = Kernel\Inspector::collectArguments($this, $scannedParams);
         if (!is_array($collectedArguments)) {
@@ -487,9 +497,6 @@ class Server
         if (count($collectedArguments) > 0) {
             $arguments = array_merge($arguments, $collectedArguments);
         }
-
-        // Read data from request body
-        $this->getRequest()->readDataFromBody();
 
         // Check Access
         if ($this->checkAccessFn) {
