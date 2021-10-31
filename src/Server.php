@@ -28,6 +28,7 @@ use TypeError;
  * @method Server addHeadRoute(string $pUri, $pCb)
  * @method Server addOptionsRoute(string $pUri, $pCb)
  * @method Server addDeleteRoute(string $pUri, $pCb)
+ * @method Server removeRoute(string $pUri)
  * @method Server setHttpStatusCodes(bool $pWithStatusCode)
  * @method Server setSuccessHandler(callable $pFn)
  * @method Server setExceptionHandler(callable $pFn)
@@ -499,8 +500,8 @@ class Server
         }
 
         // Check Access
-        if ($this->checkAccessFn) {
-            $this->fireCheckAccessFn($arguments);
+        if ($this->checkAccessFn && is_string($exception = $this->fireCheckAccessFn($arguments))) {
+            return $exception;
         }
 
         // Fire method
@@ -537,15 +538,17 @@ class Server
 
     /**
      * @param array $arguments
+     * @return string|null
      * @throws Exception
      */
-    public function fireCheckAccessFn(array $arguments): void
+    public function fireCheckAccessFn(array $arguments): ?string
     {
         try {
             $fireArguments = array($this->getClient()->getUrl(), $arguments);
             call_user_func_array($this->checkAccessFn, $fireArguments);
+            return null;
         } catch (Exception $e) {
-            $this->getResponse()->sendException($e);
+            return $this->getResponse()->sendException($e);
         }
     }
 
