@@ -14,20 +14,22 @@ class Client
      * @var array
      */
     public array $methods = array('get', 'post', 'put', 'delete', 'head', 'options', 'patch');
+
     /**
      * Current output format.
      *
      * @var string
      */
     private string $outputFormat = 'json';
+
     /**
      * List of possible output formats.
      *
      * @var array
      */
     private array $outputFormats = array(
-        'json' => '\\Abigail\\Encoder\\JSON',
-        'xml' => '\\Abigail\\Encoder\\XML'
+        'json' => \Abigail\Encoder\JSON::class,
+        'xml' => Abigail\Encoder\XML::class
     );
 
     /**
@@ -132,7 +134,8 @@ class Client
     public function sendResponse(string $pHttpCode, $pMessage): string
     {
         $suppressStatusCode = $_GET['_suppress_status_code'] ?? false;
-        if ($this->controller->getResponse()->getHttpStatusCodes() &&
+        if (
+            $this->controller->getResponse()->getHttpStatusCodes() &&
             !$suppressStatusCode &&
             php_sapi_name() !== 'cli'
         ) {
