@@ -134,6 +134,7 @@ class Client
     public function sendResponse(string $pHttpCode, $pMessage): string
     {
         $suppressStatusCode = $_GET['_suppress_status_code'] ?? false;
+
         if (
             $this->controller->getResponse()->getHttpStatusCodes() &&
             !$suppressStatusCode &&
@@ -144,14 +145,19 @@ class Client
         } elseif (php_sapi_name() !== 'cli') {
             header('HTTP/1.0 200 OK');
         }
+
         $pMessage = array_reverse($pMessage, true);
         $pMessage['status'] = intval($pHttpCode);
         $pMessage = array_reverse($pMessage, true);
+
         $encoder = $this->getOutputFormatEncoder($this->getOutputFormat());
+        $pMessageEncoded = $encoder($pMessage);
+
         if (php_sapi_name() !== 'cli') {
-            echo $encoder($pMessage);
+            echo $pMessageEncoded;
         }
-        return $encoder($pMessage);
+
+        return $pMessageEncoded;
     }
 
     /**
