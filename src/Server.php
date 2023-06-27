@@ -10,10 +10,11 @@ namespace Abigail;
 use Abigail\Kernel\Request;
 use Abigail\Kernel\Response;
 use Abigail\Kernel\Router;
+use Abigail\Kernel\Utils;
 use BadMethodCallException;
-use Exception;
 use InvalidArgumentException;
 use ReflectionException;
+use Exception;
 use TypeError;
 
 /**
@@ -116,7 +117,7 @@ class Server
      */
     public function __construct(string $pTriggerUrl, $pControllerClass = null, Server $pParentController = null)
     {
-        Kernel\Utils::normalizeUrl($pTriggerUrl);
+        Utils::normalizeUrl($pTriggerUrl);
         $this->request = new Request();
         $this->router = new Router($this);
         $this->response = new Response($this);
@@ -373,6 +374,7 @@ class Server
      */
     public function setTriggerUrl($pTriggerUrl): Server
     {
+        Utils::normalizeUrl($pTriggerUrl);
         $this->triggerUrl = $pTriggerUrl;
 
         return $this;
@@ -389,18 +391,17 @@ class Server
      */
     public function addSubController(string $pTriggerUrl, $pControllerClass = ''): Server
     {
-        Kernel\Utils::normalizeUrl($pTriggerUrl);
-
-        $base = $this->triggerUrl;
-        if ($base === '/') {
-            $base = '';
+        $pTriggerPath = $this->triggerUrl;
+        if ($pTriggerPath === '/') {
+            $pTriggerPath = '';
         }
 
-        $controller = new Server($base . $pTriggerUrl, $pControllerClass, $this);
+        $pServerTriggerPath = implode("/", [$pTriggerPath, $pTriggerUrl]);
+        $pServer = new Server($pServerTriggerPath, $pControllerClass, $this);
 
-        $this->controllers[] = $controller;
+        $this->controllers[] = $pServer;
 
-        return $controller;
+        return $pServer;
     }
 
     /**
@@ -441,30 +442,30 @@ class Server
         }
 
         $requestedUrl = $this->getClient()->getUrl();
-        Kernel\Utils::normalizeUrl($requestedUrl);
-        if (!Kernel\Utils::startsWith($requestedUrl, $this->triggerUrl)) {
+        if (!Utils::startsWith($requestedUrl, $this->triggerUrl)) {
             return false;
         }
 
-        $apiBaseUri = substr($requestedUrl, $this->triggerUrl === '/' ? 1 : strlen($this->triggerUrl) + 1);
-        if ($apiBaseUri === false) {
-            $apiBaseUri = '';
+        if ($this->triggerUrl !== '/') {
+            $pTriggerUrl = substr($requestedUrl, strlen($this->triggerUrl) + 1);
+        } else {
+            $pTriggerUrl = substr($requestedUrl, 1);
         }
 
         $arguments = array();
         $requiredMethod = $this->getClient()->getMethod();
 
         // Does the requested uri exist?
-        list($callableMethod, $regexArguments, $method) = $this->getRouter()->findRoute($apiBaseUri, $requiredMethod);
+        list($callableMethod, $regexArguments, $method) = $this->getRouter()->findRoute($pTriggerUrl, $requiredMethod);
 
         // Return a summary of one route or all routes through OPTIONS
         if ((!$callableMethod || $method != 'options') && $requiredMethod == 'options') {
-            $description = Kernel\Inspector::describe($this, $apiBaseUri);
+            $description = Kernel\Inspector::describe($this, $pTriggerUrl);
             return $this->getResponse()->send($description);
         }
 
         if (empty($callableMethod)) {
-            return $this->fireParentController($apiBaseUri);
+            return $this->fireParentController($pTriggerUrl);
         }
 
         if ($method === '_all_') {
@@ -513,14 +514,14 @@ class Server
      * @return false|string
      * @throws Exception
      */
-    public function fireParentController(string $apiBaseUri)
+    public function fireParentController(string $pTriggerUrl)
     {
         if (!$this->getParentController()) {
             if ($this->getRouter()->getFallbackMethod()) {
                 $m = $this->getRouter()->getFallbackMethod();
                 return $this->getResponse()->send($this->controller->$m());
             } else {
-                $reason = "There is no route for '$apiBaseUri'.";
+                $reason = "There is no route for '$pTriggerUrl'.";
                 return $this->getResponse()->sendBadRequest('RouteNotFoundException', $reason);
             }
         } else {

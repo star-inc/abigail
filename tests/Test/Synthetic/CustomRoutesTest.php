@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace Test\Synthetic;
 
 use Abigail\Server;
-use Exception;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 use Test\Controller\MyRoutes;
+use ReflectionException;
+use Exception;
 
 class CustomRoutesTest extends TestCase
 {
@@ -26,7 +26,6 @@ class CustomRoutesTest extends TestCase
             ->addPostRoute('login', 'postLogin');
 
         $response = $abigail->simulateCall('/login?', 'post');
-
         $this->assertEquals(
             [
                 "status" => 400,
@@ -37,7 +36,6 @@ class CustomRoutesTest extends TestCase
         );
 
         $response = $abigail->simulateCall('/login?username=bla', 'post');
-
         $this->assertEquals(
             [
                 "status" => 400,
@@ -48,11 +46,9 @@ class CustomRoutesTest extends TestCase
         );
 
         $response = $abigail->simulateCall('/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
         $response = $abigail->simulateCall('/login?username=peter&password=pwd');
-
         $this->assertEquals(
             [
                 "status" => 400,
@@ -73,7 +69,6 @@ class CustomRoutesTest extends TestCase
             ->addPostRoute('login', 'postLogin');
 
         $response = $abigail->simulateCall('/v1/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
         $abigail = Server::create('/v1/', new MyRoutes)
@@ -81,7 +76,6 @@ class CustomRoutesTest extends TestCase
             ->addPostRoute('login', 'postLogin');
 
         $response = $abigail->simulateCall('/v1/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
         $abigail = Server::create('v1', new MyRoutes)
@@ -89,7 +83,6 @@ class CustomRoutesTest extends TestCase
             ->addPostRoute('login', 'postLogin');
 
         $response = $abigail->simulateCall('/v1/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
     }
 
@@ -107,7 +100,6 @@ class CustomRoutesTest extends TestCase
             ->done();
 
         $response = $abigail->simulateCall('/v1/sub/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
     }
 
@@ -124,7 +116,6 @@ class CustomRoutesTest extends TestCase
             ->done();
 
         $response = $abigail->simulateCall('/sub/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
     }
 }

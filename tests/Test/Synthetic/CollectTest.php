@@ -9,8 +9,8 @@ namespace Test\Synthetic;
 
 use Abigail\Server;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 use Test\Controller\MyRoutes;
+use ReflectionException;
 
 class CollectTest extends TestCase
 {
@@ -19,7 +19,7 @@ class CollectTest extends TestCase
      */
     private Server $abigail;
 
-    public function setUp(): void
+    public function setup(): void
     {
         $this->abigail = Server::create('/', new MyRoutes)
             ->setClient('Abigail\\InternalClient')
@@ -53,7 +53,6 @@ class CollectTest extends TestCase
     public function testOwnController(): void
     {
         $response = $this->abigail->simulateCall('/login', 'post');
-
         $this->assertEquals(
             [
                 "status" => 400,
@@ -64,7 +63,6 @@ class CollectTest extends TestCase
         );
 
         $response = $this->abigail->simulateCall('/login?username=bla', 'post');
-
         $this->assertEquals(
             [
                 "status" => 400,
@@ -75,11 +73,9 @@ class CollectTest extends TestCase
         );
 
         $response = $this->abigail->simulateCall('/login?username=peter&password=pwd', 'post');
-
         $this->assertEquals(["status" => 200, "data" => true], json_decode($response, true));
 
         $response = $this->abigail->simulateCall('/login?username=peter&password=pwd');
-
         $this->assertEquals(
             [
                 "status" => 400,

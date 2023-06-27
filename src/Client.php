@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Abigail;
 
+use Abigail\Kernel\Utils;
+
 class Client
 {
     /**
@@ -119,6 +121,7 @@ class Client
      */
     public function setUrl(string $pUrl): Client
     {
+        Utils::normalizeUrl($pUrl);
         $this->url = $pUrl;
 
         return $this;
