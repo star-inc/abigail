@@ -48,7 +48,7 @@ include 'vendor/autoload.php';
 
 ## Requirements
 
-- PHP 8.0 and above.
+- PHP 7.4 and above.
 - PHPUnit to execute the test suite.
 - Setup PATH_INFO in mod_rewrite (.htaccess) or other webserver configuration
 
